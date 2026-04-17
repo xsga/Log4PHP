@@ -150,7 +150,7 @@ final class LoggerConfigurationAdapterXML implements LoggerConfigurationAdapter
     {
         $logger = [];
 
-        if (isset($node->level)) {
+        if (count($node->level) > 0) {
             $logger['level'] = $this->getAttributeValue($node->level, 'value');
         }
 
@@ -170,7 +170,7 @@ final class LoggerConfigurationAdapterXML implements LoggerConfigurationAdapter
             return;
         }
 
-        if (isset($node->level)) {
+        if (count($node->level) > 0) {
             $logger['level'] = $this->getAttributeValue($node->level, 'value');
         }
 

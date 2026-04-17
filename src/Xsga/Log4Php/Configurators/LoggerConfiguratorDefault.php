@@ -353,6 +353,11 @@ final class LoggerConfiguratorDefault implements LoggerConfigurator
     {
         if (isset($config['appenders'])) {
             foreach ($config['appenders'] as $appenderName) {
+                if (!is_string($appenderName) || $appenderName === '') {
+                    $this->warn("Invalid appender reference for logger [$loggerName]. Skipping.");
+                    continue;
+                }
+
                 if (isset($this->appenders[$appenderName])) {
                     $logger->addAppender($this->appenders[$appenderName]);
                     continue;

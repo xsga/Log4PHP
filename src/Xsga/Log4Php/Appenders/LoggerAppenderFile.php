@@ -32,7 +32,10 @@ class LoggerAppenderFile extends LoggerAppender
         $resource = fopen($file, $this->append ? 'a' : 'w');
         $this->fp = $resource === false ? null : $resource;
 
-        if (!$this->existsResource()) {
+        if ($this->fp === null) {
+            $this->warn('Failed opening target file. Closing appender.');
+            $this->fp = null;
+            $this->closed = true;
             return false;
         }
 
@@ -64,18 +67,6 @@ class LoggerAppenderFile extends LoggerAppender
         $this->warn("Failed creating target directory [$dir]. Closing appender.");
         $this->closed = true;
         return false;
-    }
-
-    private function existsResource(): bool
-    {
-        if ($this->fp === null) {
-            $this->warn('Failed opening target file. Closing appender.');
-            $this->fp = null;
-            $this->closed = true;
-            return false;
-        }
-
-        return true;
     }
 
     protected function write(?string $string): void

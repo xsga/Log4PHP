@@ -3,11 +3,7 @@
 /.settings
 /.vscode
 */.env
-*/.dev.env
-*/.pro.env
-.phpunit.result.cache
-.phpunit.report
-/.phpunit.cache
 /vendor/
-composer.lock
-.scannerwork
+/tests
+docker-compose.yml
+Dockerfile

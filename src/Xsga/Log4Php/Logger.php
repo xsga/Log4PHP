@@ -87,6 +87,7 @@ class Logger implements LoggerInterface
 
         if (!$level instanceof LoggerLevel) {
             trigger_error('Invalid log level: ' . var_export($level, true), E_USER_WARNING);
+            return;
         }
 
         $event = null;

@@ -162,7 +162,7 @@ final class LoggerAppenderRollingFile extends LoggerAppenderFile
         }
     }
 
-    public function setMaxBackupIndex(int $maxBackupIndex): void
+    public function setMaxBackupIndex(int|string $maxBackupIndex): void
     {
         $this->setPositiveInteger('maxBackupIndex', $maxBackupIndex);
     }

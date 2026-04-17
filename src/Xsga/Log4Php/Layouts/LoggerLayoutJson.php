@@ -31,19 +31,16 @@ final class LoggerLayoutJson extends LoggerLayout
             'request_id' => $_ENV['REQUEST_ID'] ?? null,
         ];
 
-        $locationInformation = $this->getLocationInformation($event);
-        if ($locationInformation !== null) {
-            $data['location'] = $locationInformation;
-        }
+        $data['location'] = $this->getLocationInformation($event);
 
         $context = $event->getContext();
 
         if (!empty($context)) {
-            // Promover campos importantes al nivel raíz para facilitar queries
             $promotedFields = ['event', 'user_id', 'user_email', 'ip', 'action', 'resource', 'error_code'];
 
             foreach ($promotedFields as $field) {
                 if (isset($context[$field])) {
+                    /** @psalm-suppress MixedAssignment */
                     $data[$field] = $context[$field];
                 }
             }
@@ -51,7 +48,12 @@ final class LoggerLayoutJson extends LoggerLayout
             $data['context'] = $context;
         }
 
-        return json_encode($data, $this->getFlags()) . PHP_EOL;
+        $json = json_encode($data, $this->getFlags());
+        if ($json === false) {
+            $json = '{"error":"Failed to encode log event to JSON."}';
+        }
+
+        return $json . PHP_EOL;
     }
 
     public function activateOptions(): void
