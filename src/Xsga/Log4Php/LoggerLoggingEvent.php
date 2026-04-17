@@ -50,13 +50,12 @@ final class LoggerLoggingEvent
                 if (isset($hop['class'])) {
                     $classNameRaw = $hop['class'];
                     $className = strtolower(
-                        str_replace(LoggerNamespaces::LOG4PHP_NAMESPACE, '', strtolower($classNameRaw))
+                        str_replace(strtolower(LoggerNamespaces::LOG4PHP_NAMESPACE), '', strtolower($classNameRaw))
                     );
                     $parentClass = get_parent_class($classNameRaw);
                     if (
                         !empty($className) && (
                         $className === 'logger' ||
-                        $className === 'loggerwrapper' ||
                         ($parentClass !== false && strtolower($parentClass) === 'logger'))
                     ) {
                         $locationInfo['line'] = $hop['line'] ?? 0;
