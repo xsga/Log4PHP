@@ -64,17 +64,25 @@ final class LoggerConfigurationAdapterXML implements LoggerConfigurationAdapter
         libxml_clear_errors();
         $oldValue = libxml_use_internal_errors(true);
 
-        $xml = @simplexml_load_file($url);
+        $xml = @simplexml_load_file($url, SimpleXMLElement::class, LIBXML_NONET);
         if ($xml === false) {
             $errorStr = '';
             foreach (libxml_get_errors() as $error) {
                 $errorStr .= $error->message;
             }
+            libxml_clear_errors();
+            libxml_use_internal_errors($oldValue);
             throw new LoggerException('Error loading configuration file: ' . trim($errorStr));
         }
 
         libxml_clear_errors();
         libxml_use_internal_errors($oldValue);
+
+        if ($xml->getName() !== 'configuration') {
+            throw new LoggerException(
+                "Invalid configuration file [$url]: root element must be <configuration>, got <{$xml->getName()}>."
+            );
+        }
 
         return $xml;
     }
