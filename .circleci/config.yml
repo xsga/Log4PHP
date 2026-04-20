@@ -27,4 +27,4 @@ jobs:
           command: composer analyze-errors
       - run:
           name: PHPLOC info
-          command: php phploc.phar Src
+          command: php phploc.phar src
