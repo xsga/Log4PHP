@@ -6,11 +6,11 @@ namespace Xsga\Log4Php;
 
 use Xsga\Log4Php\Configurators\LoggerConfiguratorDefault;
 use Psr\Log\LoggerInterface;
+use Stringable;
 
 class Logger implements LoggerInterface
 {
     private bool $additive = true;
-    private string $fqcn = 'Logger';
     private ?LoggerLevel $level = null;
     private ?Logger $parent = null;
 
@@ -24,62 +24,52 @@ class Logger implements LoggerInterface
     {
     }
 
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    public function getParent(): ?Logger
-    {
-        return $this->parent;
-    }
-
-    public function trace(mixed $message, array $context = []): void
+    public function trace(string|Stringable $message, array $context = []): void
     {
         $this->log(LoggerLevel::getLevelTrace(), $message, $context);
     }
 
-    public function debug(mixed $message, array $context = []): void
+    public function debug(string|Stringable $message, array $context = []): void
     {
         $this->log(LoggerLevel::getLevelDebug(), $message, $context);
     }
 
-    public function info(mixed $message, array $context = []): void
+    public function info(string|Stringable $message, array $context = []): void
     {
         $this->log(LoggerLevel::getLevelInfo(), $message, $context);
     }
 
-    public function notice(mixed $message, array $context = []): void
+    public function notice(string|Stringable $message, array $context = []): void
     {
         $this->log(LoggerLevel::getLevelNotice(), $message, $context);
     }
 
-    public function warning(mixed $message, array $context = []): void
+    public function warning(string|Stringable $message, array $context = []): void
     {
         $this->log(LoggerLevel::getLevelWarning(), $message, $context);
     }
 
-    public function error(mixed $message, array $context = []): void
+    public function error(string|Stringable $message, array $context = []): void
     {
         $this->log(LoggerLevel::getLevelError(), $message, $context);
     }
 
-    public function critical(mixed $message, array $context = []): void
+    public function critical(string|Stringable $message, array $context = []): void
     {
         $this->log(LoggerLevel::getLevelCritical(), $message, $context);
     }
 
-    public function alert(mixed $message, array $context = []): void
+    public function alert(string|Stringable $message, array $context = []): void
     {
         $this->log(LoggerLevel::getLevelAlert(), $message, $context);
     }
 
-    public function emergency(mixed $message, array $context = []): void
+    public function emergency(string|Stringable $message, array $context = []): void
     {
         $this->log(LoggerLevel::getLevelEmergency(), $message, $context);
     }
 
-    public function log(mixed $level, mixed $message, array $context = []): void
+    public function log(mixed $level, string|Stringable $message, array $context = []): void
     {
         if (is_string($level) || is_int($level)) {
             $level = LoggerLevel::toLevel($level);
@@ -92,7 +82,7 @@ class Logger implements LoggerInterface
 
         $event = null;
         if ($this->isEnabledFor($level)) {
-            $event = new LoggerLoggingEvent($this->fqcn, $this, $level, $message, $context);
+            $event = new LoggerLoggingEvent($this, $level, $message, $context);
             $this->callAppenders($event);
         }
 
@@ -148,7 +138,7 @@ class Logger implements LoggerInterface
         }
     }
 
-    public function removeAppender(string|LoggerAppender $appender): void
+    private function removeAppender(string|LoggerAppender $appender): void
     {
         if ($appender instanceof LoggerAppender) {
             $appender->close();
@@ -176,6 +166,16 @@ class Logger implements LoggerInterface
         }
 
         return null;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function getParent(): ?Logger
+    {
+        return $this->parent;
     }
 
     public function getLevel(): ?LoggerLevel
@@ -221,27 +221,11 @@ class Logger implements LoggerInterface
         return static::getHierarchy()->getRootLogger();
     }
 
-    public static function clear(): void
-    {
-        static::getHierarchy()->clear();
-    }
-
     public static function resetConfiguration(): void
     {
         static::getHierarchy()->resetConfiguration();
         static::getHierarchy()->clear();
         static::$initialized = false;
-    }
-
-    public static function exists(string $name): bool
-    {
-        return static::getHierarchy()->exists($name);
-    }
-
-    /** @return Logger[] */
-    public static function getCurrentLoggers(): array
-    {
-        return static::getHierarchy()->getCurrentLoggers();
     }
 
     public static function configure(string|array|null $configuration = null): void

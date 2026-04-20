@@ -43,8 +43,6 @@ class LoggerAppenderFile extends LoggerAppender
             fseek($this->fp, 0, SEEK_END);
         }
 
-        $this->write($this->layout?->getHeader() ?? '');
-
         return true;
     }
 
@@ -135,7 +133,6 @@ class LoggerAppenderFile extends LoggerAppender
     public function close(): void
     {
         if ($this->fp !== null) {
-            $this->write($this->layout?->getFooter());
             if (is_resource($this->fp)) {
                 fclose($this->fp);
             }

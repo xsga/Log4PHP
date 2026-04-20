@@ -9,7 +9,55 @@ use Xsga\Log4Php\LoggerLoggingEvent;
 
 final class LoggerLayoutJson extends LoggerLayout
 {
+    private const array PROMOTED_FIELDS = [
+        'event',
+        'user_id',
+        'user_email',
+        'ip',
+        'action',
+        'resource',
+        'error_code'
+    ];
+
     protected bool $prettyPrint = false;
+
+    public function format(LoggerLoggingEvent $event): string
+    {
+        $data = [
+            'timestamp'  => date('Y-m-d\TH:i:s.v\Z', (int)$event->getTimeStamp()),
+            'level'      => $event->getLevel()->toString(),
+            'message'    => $event->getRenderedMessage(),
+            'request_id' => $_ENV['REQUEST_ID'] ?? null,
+        ];
+
+        $data = $this->setPromotedFields($event, $data);
+
+        $data['location'] = $this->getLocationInformation($event);
+        $data['context']  = $event->getContext();
+
+        $json = json_encode($data, $this->getFlags());
+        if ($json === false) {
+            $json = '{"error":"Failed to encode log event to JSON."}';
+        }
+
+        return $json . PHP_EOL;
+    }
+
+    private function setPromotedFields(LoggerLoggingEvent $event, array $data): array
+    {
+        $context = $event->getContext();
+
+        if (!empty($context)) {
+            foreach (self::PROMOTED_FIELDS as $field) {
+                if (isset($context[$field])) {
+                    /** @psalm-suppress MixedAssignment */
+                    $data[$field] = $context[$field];
+                }
+            }
+        }
+
+        return $data;
+    }
 
     public function setPrettyPrint(bool|string|int $prettyPrint): void
     {
@@ -20,40 +68,6 @@ final class LoggerLayoutJson extends LoggerLayout
         }
 
         $this->prettyPrint = (bool)$prettyPrint;
-    }
-
-    public function format(LoggerLoggingEvent $event): string
-    {
-        $data = [
-            'timestamp'  => date('Y-m-d\TH:i:s.v\Z', (int)$event->getTimeStamp()),
-            'level'      => $event->getLevel()->toString(),
-            'message'    => $event->getMessage(),
-            'request_id' => $_ENV['REQUEST_ID'] ?? null,
-        ];
-
-        $data['location'] = $this->getLocationInformation($event);
-
-        $context = $event->getContext();
-
-        if (!empty($context)) {
-            $promotedFields = ['event', 'user_id', 'user_email', 'ip', 'action', 'resource', 'error_code'];
-
-            foreach ($promotedFields as $field) {
-                if (isset($context[$field])) {
-                    /** @psalm-suppress MixedAssignment */
-                    $data[$field] = $context[$field];
-                }
-            }
-
-            $data['context'] = $context;
-        }
-
-        $json = json_encode($data, $this->getFlags());
-        if ($json === false) {
-            $json = '{"error":"Failed to encode log event to JSON."}';
-        }
-
-        return $json . PHP_EOL;
     }
 
     public function activateOptions(): void

@@ -245,10 +245,10 @@ Formats log events as a single-line JSON object, suitable for structured logging
 **Output example:**
 
 ```json
-{"timestamp":"2026-04-18T10:23:45.123Z","level":"INFO","message":"User logged in","request_id":"abc-123","event":"user_login","user_id":42,"location":{"class":"App\\Controller","method":"login","file":"/app/Controller.php","line":"58"}}
+{"timestamp":"2026-04-18T10:23:45.123Z","level":"INFO","message":"User logged in","request_id":"abc-123","event":"user_login","user_id":42,"location":{"class":"App\\Controller","method":"login","file":"/app/Controller.php","line":"58"},"context":{"event":"user_login","user_id":42}}
 ```
 
-The following context keys are automatically **promoted to top-level fields**: `event`, `user_id`, `user_email`, `ip`, `action`, `resource`, `error_code`.
+The following context keys are automatically **promoted to top-level fields**: `event`, `user_id`, `user_email`, `ip`, `action`, `resource`, `error_code`. The full `context` array is always included as a separate field.
 
 ```xml
 <layout class="LoggerLayoutJson">
@@ -300,8 +300,8 @@ $logger->info('User authenticated.', [
 ```
 
 Context data is:
-- Included as-is in `LoggerLayoutJson` (with promotion of well-known keys to top-level fields).
-- Available via the `%message` converter in `LoggerLayoutPattern` when the message references context placeholders.
+- Included as-is in `LoggerLayoutJson` (with promotion of well-known keys to top-level fields; the full `context` array is always present in the output).
+- Interpolated into the message using PSR-3 `{key}` placeholders before any layout processes it. For example, a message `'User {user_id} logged in'` with `['user_id' => 42]` in context will render as `'User 42 logged in'`.
 
 ---
 
@@ -316,12 +316,6 @@ $http = Logger::getLogger('MyApp.Http');  // inherits from MyApp
 
 // Root logger — ancestor of all loggers
 $root = Logger::getRootLogger();
-
-// List all active loggers
-$all = Logger::getCurrentLoggers();
-
-// Check existence without creating
-if (Logger::exists('MyApp.Http')) { ... }
 ```
 
 ---

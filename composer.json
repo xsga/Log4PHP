@@ -1,6 +1,6 @@
 {
   "name": "xsga/log4php",
-  "description": "A PHP logging library based on Apache Log4PHP, supporting multiple appenders, layouts and log levels.",
+  "description": "A PHP logging library based on Apache Log4PHP, PSR-3 compliant, supporting multiple appenders, layouts and log levels.",
   "type": "library",
   "license": "MIT",
   "homepage": "https://github.com/xsga/Log4PHP",

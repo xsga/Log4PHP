@@ -12,7 +12,7 @@ use Xsga\Log4Php\Pattern\LoggerPatternConverter;
 
 final class LoggerLayoutPattern extends LoggerLayout
 {
-    public const string DEFAULT_CONVERSION_PATTERN = '%date %-5level %logger %message%newline';
+    private const string DEFAULT_CONVERSION_PATTERN = '%date %-5level %logger %message%newline';
 
     protected string $pattern = self::DEFAULT_CONVERSION_PATTERN;
 

@@ -33,7 +33,6 @@ final class LoggerAppenderDailyFile extends LoggerAppenderFile
 
         if ($this->currentDate !== $eventDate) {
             if (is_resource($this->fp)) {
-                $this->write($this->layout?->getFooter());
                 fclose($this->fp);
                 $this->fp = null;
             }

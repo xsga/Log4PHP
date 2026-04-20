@@ -1,0 +1,49 @@
+name: BlackBirdPHP build
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.4'
+        extensions: mbstring, zip, gd
+
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Validate Composer configuration
+      run: composer validate --strict
+
+    - name: Get Composer cache directory
+      id: composer-cache
+      run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+    - name: Cache Composer packages
+      uses: actions/cache@v4
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+        restore-keys: ${{ runner.os }}-composer-
+
+    - name: Install project dependencies
+      run: composer install --prefer-dist --no-progress --ignore-platform-reqs
+
+    - name: Run PHP Lint
+      run: composer lint
+    
+    - name: Analyze code
+      run: composer analyze-errors
