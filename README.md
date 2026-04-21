@@ -23,6 +23,7 @@ If you are migrating from or comparing against the original Apache Log4PHP libra
   - [LoggerAppenderFile](#loggerappenderfile)
   - [LoggerAppenderDailyFile](#loggerappenderdailyfile)
   - [LoggerAppenderRollingFile](#loggerappenderrollingfile)
+  - [LoggerAppenderLoki](#loggerappenderloki)
 - [Layouts](#layouts)
   - [LoggerLayoutPattern](#loggerlayoutpattern)
   - [LoggerLayoutJson](#loggerlayoutjson)
@@ -215,6 +216,64 @@ Extends `LoggerAppenderFile`. Rotates the log file when it exceeds a configured 
   <layout class="LoggerLayoutPattern" />
 </appender>
 ```
+
+### LoggerAppenderLoki
+
+Envía logs a **Grafana Cloud Loki** mediante HTTP. Este appender se autentica usando credenciales y envía eventos de log en formato JSON estructurado compatible con la API de Loki.
+
+| Parámetro     | Tipo   | Obligatorio | Default      | Descripción |
+|---------------|--------|-------------|--------------|-------------|
+| `url`         | string | Sí          | —            | URL del endpoint de Loki (ej. `https://logs-prod-012.grafana.net/loki/api/v1/push`) |
+| `username`    | string | Sí          | —            | ID de usuario de Grafana Cloud |
+| `token`       | string | Sí          | —            | Token de API de Grafana Cloud |
+| `serviceName` | string | No          | `json_logs`  | Etiqueta `service_name` en Loki |
+| `job`         | string | No          | `json_logs`  | Etiqueta `job` en Loki |
+
+**Recomendación:** Use `LoggerLayoutJson` para generar mensajes estructurados que se integren mejor con Loki.
+
+#### Configuración segura para producción
+
+Use la sintaxis `${VARIABLE}` para referenciar variables de entorno dentro del XML. Esto mantiene las credenciales fuera del repositorio:
+
+```xml
+<appender name="loki" class="LoggerAppenderLoki">
+  <param name="url" value="${GRAFANA_CLOUD_LOKI_URL}" />
+  <param name="username" value="${GRAFANA_CLOUD_LOKI_USERNAME}" />
+  <param name="token" value="${GRAFANA_CLOUD_LOKI_TOKEN}" />
+  <param name="serviceName" value="mi-aplicacion" />
+  <param name="job" value="backend" />
+  <layout class="LoggerLayoutJson">
+    <param name="prettyPrint" value="false" />
+  </layout>
+</appender>
+```
+
+Defina las variables de entorno:
+
+```bash
+export GRAFANA_CLOUD_LOKI_URL="https://logs-prod-012.grafana.net/loki/api/v1/push"
+export GRAFANA_CLOUD_LOKI_USERNAME="123456"
+export GRAFANA_CLOUD_LOKI_TOKEN="glc_ey..."
+```
+
+#### Configuración para desarrollo/testing
+
+Para entornos locales puede incluir valores directamente en el XML (no recomendado para producción):
+
+```xml
+<appender name="loki" class="LoggerAppenderLoki">
+  <param name="url" value="http://localhost:3100/loki/api/v1/push" />
+  <param name="username" value="local" />
+  <param name="token" value="test-token" />
+  <layout class="LoggerLayoutJson" />
+</appender>
+```
+
+Cada evento de log se envía a Loki con las siguientes etiquetas (labels):
+
+- `level`: Nivel de log (DEBUG, INFO, WARNING, etc.)
+- `service_name`: Configurable mediante el parámetro `serviceName`
+- `job`: Configurable mediante el parámetro `job`
 
 ---
 

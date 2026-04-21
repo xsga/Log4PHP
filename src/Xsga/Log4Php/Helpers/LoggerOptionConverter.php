@@ -138,16 +138,12 @@ final class LoggerOptionConverter
     {
         preg_match_all('/\${([^}]+)}/', $string, $matches);
 
-        $replacement = '';
-
         foreach ($matches[1] as $key => $match) {
             $match  = trim($match);
             $search = $matches[0][$key];
 
-            $replacement = match (defined($match)) {
-                true => (string)constant($match),
-                false => '',
-            };
+            // Buscar en constantes, $_SERVER y $_ENV
+            $replacement = self::getSystemProperty($match, '');
 
             $string = str_replace($search, $replacement, $string);
         }
