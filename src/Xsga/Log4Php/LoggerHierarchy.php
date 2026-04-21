@@ -51,13 +51,13 @@ final class LoggerHierarchy
 
             if (count($nodes) > 0) {
                 foreach ($nodes as $node) {
-                    $parentNode = $firstNode . $node;
+                    $parentNode = $firstNode . '.' . $node;
 
                     if (isset($this->loggers[$parentNode]) && $parentNode !== $name) {
                         $logger->setParent($this->loggers[$parentNode]);
                     }
 
-                    $firstNode .= $node;
+                    $firstNode .= '.' . $node;
                 }
             }
 

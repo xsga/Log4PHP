@@ -196,8 +196,7 @@ class Logger implements LoggerInterface
     public static function getHierarchy(): LoggerHierarchy
     {
         if (static::$hierarchy === null) {
-            $loggerRoot = new LoggerRoot();
-            static::$hierarchy = new LoggerHierarchy($loggerRoot);
+            static::$hierarchy = new LoggerHierarchy(new LoggerRoot());
         }
 
         return static::$hierarchy;
