@@ -104,8 +104,6 @@ final class LoggerHierarchy
             $logger->setAdditivity(true);
             $logger->removeAllAppenders();
         }
-
-        LoggerAppenderPool::clear();
     }
 
     public function setThreshold(LoggerLevel $threshold): void
