@@ -9,7 +9,7 @@ use Xsga\Log4Php\Renderers\LoggerRendererDefault;
 
 final class LoggerHierarchy
 {
-    /** @var Logger[] */
+    /** @var array<string,Logger> */
     private array $loggers = [];
 
     private LoggerRenderer $renderer;
@@ -40,31 +40,41 @@ final class LoggerHierarchy
     public function getLogger(string $name): Logger
     {
         if (!isset($this->loggers[$name])) {
-            $logger    = new Logger($name);
-            $nodes     = explode('.', $name);
-            $firstNode = array_shift($nodes);
-
-            match ($firstNode !== $name && isset($this->loggers[$firstNode])) {
-                true => $logger->setParent($this->loggers[$firstNode]),
-                false => $logger->setParent($this->root)
-            };
-
-            if (count($nodes) > 0) {
-                foreach ($nodes as $node) {
-                    $parentNode = $firstNode . '.' . $node;
-
-                    if (isset($this->loggers[$parentNode]) && $parentNode !== $name) {
-                        $logger->setParent($this->loggers[$parentNode]);
-                    }
-
-                    $firstNode .= '.' . $node;
-                }
-            }
-
+            $logger = new Logger($name);
             $this->loggers[$name] = $logger;
+            $this->updateParents($logger);
+            $this->updateChildren($logger);
         }
 
         return $this->loggers[$name];
+    }
+
+    private function updateParents(Logger $logger): void
+    {
+        $parts = explode('.', $logger->getName());
+        array_pop($parts);
+
+        while (!empty($parts)) {
+            $candidateName = implode('.', $parts);
+            if (isset($this->loggers[$candidateName])) {
+                $logger->setParent($this->loggers[$candidateName]);
+                return;
+            }
+            array_pop($parts);
+        }
+
+        $logger->setParent($this->root);
+    }
+
+    private function updateChildren(Logger $newLogger): void
+    {
+        $prefix = $newLogger->getName() . '.';
+
+        foreach ($this->loggers as $existingName => $existingLogger) {
+            if ($existingName !== $newLogger->getName() && str_starts_with($existingName, $prefix)) {
+                $this->updateParents($existingLogger);
+            }
+        }
     }
 
     public function getRenderer(): LoggerRenderer

@@ -86,12 +86,14 @@ final class LoggerAppenderLoki extends LoggerAppender
         }
 
         curl_setopt_array($cUrlHandler, [
-            CURLOPT_POST           => true,
-            CURLOPT_POSTFIELDS     => json_encode($payload),
-            CURLOPT_HTTPHEADER     => ['Content-Type: application/json'],
-            CURLOPT_USERPWD        => "{$this->username}:{$this->token}",
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_TIMEOUT        => 5
+            CURLOPT_POST            => true,
+            CURLOPT_POSTFIELDS      => json_encode($payload),
+            CURLOPT_HTTPHEADER      => ['Content-Type: application/json'],
+            CURLOPT_USERPWD         => "{$this->username}:{$this->token}",
+            CURLOPT_RETURNTRANSFER  => true,
+            CURLOPT_TIMEOUT         => 5,
+            CURLOPT_PROTOCOLS       => CURLPROTO_HTTP | CURLPROTO_HTTPS,
+            CURLOPT_REDIR_PROTOCOLS => CURLPROTO_HTTP | CURLPROTO_HTTPS
         ]);
 
         $result = curl_exec($cUrlHandler);

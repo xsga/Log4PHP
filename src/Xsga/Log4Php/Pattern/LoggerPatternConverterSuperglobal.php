@@ -13,13 +13,14 @@ abstract class LoggerPatternConverterSuperglobal extends LoggerPatternConverter
 
     public function activateOptions(): void
     {
+        $class = get_class($this);
+
         if (isset($this->option) && ($this->option !== '')) {
             $key = $this->option;
         }
 
         if (!isset($GLOBALS[$this->name])) {
-            $class = get_class($this);
-            trigger_error("log4php: $class: Cannot find superglobal variable $" . $this->name, E_USER_WARNING);
+            trigger_error("log4php: $class: Cannot find superglobal variable " . $this->name, E_USER_WARNING);
             return;
         }
 
@@ -38,11 +39,7 @@ abstract class LoggerPatternConverterSuperglobal extends LoggerPatternConverter
             return;
         }
 
-        $values = [];
-        foreach ($source as $key => $value) {
-            $values[] = $key . '=' . $value;
-        }
-        $this->value = implode(', ', $values);
+        trigger_error("log4php: $class: key not provided for superglobal $" . $this->name, E_USER_WARNING);
     }
 
     public function convert(LoggerLoggingEvent $event): string
