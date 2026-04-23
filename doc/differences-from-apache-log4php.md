@@ -23,8 +23,8 @@ This document describes the main differences between **xsga/log4php** and the or
 The original library targeted PHP 5.2.7 and used no namespaces, relying on a custom `LoggerAutoloader` class. This fork requires **PHP 8.4** and takes full advantage of modern language features:
 
 - Strict types (`declare(strict_types=1)`) in every file.
-- Named arguments and constructor property promotion.
-- Union types, nullable types, and `readonly` properties.
+- Constructor property promotion.
+- Union types, nullable types, and `readonly` properties where appropriate.
 - PSR-4 namespacing under `Xsga\Log4Php\`.
 - No custom autoloader — standard Composer PSR-4 autoloading only.
 
@@ -35,8 +35,9 @@ The original library targeted PHP 5.2.7 and used no namespaces, relying on a cus
 The original `Logger` class had no relationship to any PSR standard. This fork implements `Psr\Log\LoggerInterface` (PSR-3), which means:
 
 - The `Logger` class can be injected anywhere a `LoggerInterface` is expected.
-- All nine PSR-3 methods are available: `emergency()`, `alert()`, `critical()`, `error()`, `warning()`, `notice()`, `info()`, `debug()`, `trace()`.
-- The `log(mixed $level, mixed $message, array $context = [])` method is also implemented.
+- All PSR-3 methods are available: `emergency()`, `alert()`, `critical()`, `error()`, `warning()`, `notice()`, `info()`, `debug()`, and `log()`.
+- In addition to PSR-3, a `trace()` method is available as a library-specific extension.
+- The generic method signature is `log(mixed $level, string|Stringable $message, array $context = [])`.
 - The `$context` array is a first-class citizen passed through the entire logging pipeline.
 
 ---
@@ -65,14 +66,15 @@ The original library used the classic Log4j level set: `TRACE`, `DEBUG`, `INFO`,
 
 ## 4. Appenders
 
-The original library shipped thirteen appenders. This fork retains only the **file-based appenders** and removes all those that depend on external services or are unsuitable for modern PHP.
+The original library shipped thirteen appenders. This fork keeps a smaller, curated set focused on common modern use cases.
 
 | Appender | Apache Log4PHP | xsga/log4php |
 |---|:---:|:---:|
 | `LoggerAppenderFile` | ✅ | ✅ |
 | `LoggerAppenderDailyFile` | ✅ | ✅ |
 | `LoggerAppenderRollingFile` | ✅ | ✅ |
-| `LoggerAppenderConsole` | ✅ | ❌ |
+| `LoggerAppenderConsole` | ✅ | ✅ |
+| `LoggerAppenderLoki` | ❌ | ✅ *(new)* |
 | `LoggerAppenderEcho` | ✅ | ❌ |
 | `LoggerAppenderFirePHP` | ✅ | ❌ |
 | `LoggerAppenderMail` | ✅ | ❌ |
@@ -84,7 +86,7 @@ The original library shipped thirteen appenders. This fork retains only the **fi
 | `LoggerAppenderSocket` | ✅ | ❌ |
 | `LoggerAppenderSyslog` | ✅ | ❌ |
 
-The retained file appenders have been rewritten for PHP 8.4, with proper type declarations, safe resource handling, and automatic directory creation.
+Implemented appenders in this fork are currently: `File`, `DailyFile`, `RollingFile`, `Console`, and `Loki`.
 
 ---
 
@@ -162,7 +164,6 @@ The `LoggerLayoutPattern` converter set has been updated and extended:
 | `%server` (`%s`) | ✅ | ✅ | |
 | `%session` (`%ses`) | ✅ | ✅ | |
 | `%sessionid` (`%sid`) | ✅ | ✅ | |
-| `%superglobal` | ✅ | ✅ | |
 | `%requestid` (`%rid`) | ❌ | ✅ | *New* — reads `$_ENV['REQUEST_ID']` |
 
 ---
@@ -175,7 +176,10 @@ The `LoggerLayoutPattern` converter set has been updated and extended:
 | Properties (`.properties`) | ✅ | ❌ |
 | PHP array | ✅ | ✅ |
 
-The PHP `.properties` file format adapter has been removed. XML and PHP arrays are the only supported configuration sources.
+The `.properties` file format adapter has been removed.
+
+- File-based configuration supports XML.
+- Programmatic configuration supports PHP arrays passed directly to `Logger::configure([...])`.
 
 ---
 

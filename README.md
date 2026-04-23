@@ -23,6 +23,7 @@ If you are migrating from or comparing against the original Apache Log4PHP libra
   - [LoggerAppenderFile](#loggerappenderfile)
   - [LoggerAppenderDailyFile](#loggerappenderdailyfile)
   - [LoggerAppenderRollingFile](#loggerappenderrollingfile)
+  - [LoggerAppenderConsole](#loggerappenderconsole)
   - [LoggerAppenderLoki](#loggerappenderloki)
 - [Layouts](#layouts)
   - [LoggerLayoutPattern](#loggerlayoutpattern)
@@ -203,7 +204,7 @@ Extends `LoggerAppenderFile`. Rotates the log file when it exceeds a configured 
 | Parameter        | Type   | Default   | Description |
 |------------------|--------|-----------|-------------|
 | `file`           | string | —         | Path to the active log file. |
-| `maxFileSize`    | string | `10MB`    | Maximum file size before rotation (e.g. `5MB`, `1GB`). |
+| `maxFileSize`    | string | `10MB`    | Maximum file size before rotation (e.g., `5MB`, `1GB`). |
 | `maxBackupIndex` | int    | `1`       | Number of backup files to retain. |
 | `compress`       | bool   | `false`   | Compress backups as `.gz` files. |
 
@@ -217,30 +218,45 @@ Extends `LoggerAppenderFile`. Rotates the log file when it exceeds a configured 
 </appender>
 ```
 
+### LoggerAppenderConsole
+
+Writes log events to console output streams.
+
+| Parameter | Type   | Default   | Description |
+|-----------|--------|-----------|-------------|
+| `target`  | string | `stdout`  | Output target: `stdout`, `stderr`, or `php` (`error_log`). |
+
+```xml
+<appender name="console" class="LoggerAppenderConsole">
+  <param name="target" value="stdout" />
+  <layout class="LoggerLayoutPattern" />
+</appender>
+```
+
 ### LoggerAppenderLoki
 
-Envía logs a **Grafana Cloud Loki** mediante HTTP. Este appender se autentica usando credenciales y envía eventos de log en formato JSON estructurado compatible con la API de Loki.
+Sends logs to **Grafana Cloud Loki** over HTTP. This appender authenticates using credentials and sends log events in structured JSON format compatible with the Loki API.
 
-| Parámetro     | Tipo   | Obligatorio | Default      | Descripción |
+| Parameter     | Type   | Required    | Default      | Description |
 |---------------|--------|-------------|--------------|-------------|
-| `url`         | string | Sí          | —            | URL del endpoint de Loki (ej. `https://logs-prod-012.grafana.net/loki/api/v1/push`) |
-| `username`    | string | Sí          | —            | ID de usuario de Grafana Cloud |
-| `token`       | string | Sí          | —            | Token de API de Grafana Cloud |
-| `serviceName` | string | No          | `json_logs`  | Etiqueta `service_name` en Loki |
-| `job`         | string | No          | `json_logs`  | Etiqueta `job` en Loki |
+| `url`         | string | Yes         | —            | Loki endpoint URL (e.g., `https://logs-prod-012.grafana.net/loki/api/v1/push`) |
+| `username`    | string | Yes         | —            | Grafana Cloud user ID |
+| `token`       | string | Yes         | —            | Grafana Cloud API token |
+| `serviceName` | string | No          | `json_logs`  | `service_name` label in Loki |
+| `job`         | string | No          | `json_logs`  | `job` label in Loki |
 
-**Recomendación:** Use `LoggerLayoutJson` para generar mensajes estructurados que se integren mejor con Loki.
+**Recommendation:** Use `LoggerLayoutJson` to generate structured messages that integrate better with Loki.
 
-#### Configuración segura para producción
+#### Secure production configuration
 
-Use la sintaxis `${VARIABLE}` para referenciar variables de entorno dentro del XML. Esto mantiene las credenciales fuera del repositorio:
+Use the `${VARIABLE}` syntax to reference environment variables inside the XML. This keeps credentials out of the repository:
 
 ```xml
 <appender name="loki" class="LoggerAppenderLoki">
   <param name="url" value="${GRAFANA_CLOUD_LOKI_URL}" />
   <param name="username" value="${GRAFANA_CLOUD_LOKI_USERNAME}" />
   <param name="token" value="${GRAFANA_CLOUD_LOKI_TOKEN}" />
-  <param name="serviceName" value="mi-aplicacion" />
+  <param name="serviceName" value="my-application" />
   <param name="job" value="backend" />
   <layout class="LoggerLayoutJson">
     <param name="prettyPrint" value="false" />
@@ -248,7 +264,7 @@ Use la sintaxis `${VARIABLE}` para referenciar variables de entorno dentro del X
 </appender>
 ```
 
-Defina las variables de entorno:
+Define environment variables:
 
 ```bash
 export GRAFANA_CLOUD_LOKI_URL="https://logs-prod-012.grafana.net/loki/api/v1/push"
@@ -256,9 +272,9 @@ export GRAFANA_CLOUD_LOKI_USERNAME="123456"
 export GRAFANA_CLOUD_LOKI_TOKEN="glc_ey..."
 ```
 
-#### Configuración para desarrollo/testing
+#### Development/testing configuration
 
-Para entornos locales puede incluir valores directamente en el XML (no recomendado para producción):
+For local environments you can include values directly in the XML (not recommended for production):
 
 ```xml
 <appender name="loki" class="LoggerAppenderLoki">
@@ -269,11 +285,11 @@ Para entornos locales puede incluir valores directamente en el XML (no recomenda
 </appender>
 ```
 
-Cada evento de log se envía a Loki con las siguientes etiquetas (labels):
+Each log event is sent to Loki with the following labels:
 
-- `level`: Nivel de log (DEBUG, INFO, WARNING, etc.)
-- `service_name`: Configurable mediante el parámetro `serviceName`
-- `job`: Configurable mediante el parámetro `job`
+- `level`: Log level (DEBUG, INFO, WARNING, etc.)
+- `service_name`: Configurable via the `serviceName` parameter
+- `job`: Configurable via the `job` parameter
 
 ---
 
@@ -295,7 +311,7 @@ Formats log events using a configurable pattern string composed of conversion ch
 
 ### LoggerLayoutJson
 
-Formats log events as a single-line JSON object, suitable for structured logging pipelines (e.g. Elasticsearch, Loki, Datadog).
+Formats log events as a single-line JSON object, suitable for structured logging pipelines (e.g., Elasticsearch, Loki, Datadog).
 
 | Parameter    | Type | Default | Description |
 |--------------|------|---------|-------------|
@@ -366,7 +382,7 @@ Context data is:
 
 ## Logger Hierarchy
 
-Loggers are organised in a dot-separated namespace hierarchy. A child logger inherits its parent's appenders unless `additivity` is disabled.
+Loggers are organized in a dot-separated namespace hierarchy. A child logger inherits its parent's appenders unless `additivity` is disabled.
 
 ```php
 // Named loggers
