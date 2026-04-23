@@ -40,6 +40,7 @@ If you are migrating from or comparing against the original Apache Log4PHP libra
 ## Requirements
 
 - PHP **8.4** or higher
+- libxml **>= 2.13.0**
 - Composer
 
 ---
@@ -79,6 +80,8 @@ $root->debug('Root logger is ready.');
 ### XML Configuration File
 
 Log4PHP is configured through an XML file. The root element accepts a global `threshold` attribute that filters all appenders at once.
+
+Each appender should define a `<layout ...>` block explicitly. Appenders no longer assume an implicit default layout.
 
 ```xml
 <?xml version="1.0" encoding="UTF-8" ?>

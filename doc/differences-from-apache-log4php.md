@@ -27,6 +27,7 @@ The original library targeted PHP 5.2.7 and used no namespaces, relying on a cus
 - Union types, nullable types, and `readonly` properties where appropriate.
 - PSR-4 namespacing under `Xsga\Log4Php\`.
 - No custom autoloader — standard Composer PSR-4 autoloading only.
+- Requires `libxml >= 2.13.0`.
 
 ---
 
@@ -60,7 +61,7 @@ The original library used the classic Log4j level set: `TRACE`, `DEBUG`, `INFO`,
 | FATAL          | EMERGENCY     | 9   |
 | OFF            | OFF           | 10  |
 
-`WARN` and `FATAL` are removed; `NOTICE`, `CRITICAL`, `ALERT`, and `EMERGENCY` are added.
+`WARN` and `FATAL` are removed; `NOTICE`, `WARNING`, `CRITICAL`, `ALERT`, and `EMERGENCY` are added.
 
 ---
 
@@ -74,7 +75,7 @@ The original library shipped thirteen appenders. This fork keeps a smaller, cura
 | `LoggerAppenderDailyFile` | ✅ | ✅ |
 | `LoggerAppenderRollingFile` | ✅ | ✅ |
 | `LoggerAppenderConsole` | ✅ | ✅ |
-| `LoggerAppenderLoki` | ❌ | ✅ *(new)* |
+| `LoggerAppenderLoki` | ❌ | ✅ |
 | `LoggerAppenderEcho` | ✅ | ❌ |
 | `LoggerAppenderFirePHP` | ✅ | ❌ |
 | `LoggerAppenderMail` | ✅ | ❌ |
@@ -95,7 +96,7 @@ Implemented appenders in this fork are currently: `File`, `DailyFile`, `RollingF
 | Layout | Apache Log4PHP | xsga/log4php |
 |---|:---:|:---:|
 | `LoggerLayoutPattern` | ✅ | ✅ |
-| `LoggerLayoutJson` | ❌ | ✅ *(new)* |
+| `LoggerLayoutJson` | ❌ | ✅ |
 | `LoggerLayoutHtml` | ✅ | ❌ |
 | `LoggerLayoutXml` | ✅ | ❌ |
 | `LoggerLayoutSimple` | ✅ | ❌ |
@@ -114,7 +115,21 @@ A brand-new layout not present in the original. It produces single-line JSON out
 
 ---
 
-## 6. Filter System Removed
+## 6. Renderer System Removed
+
+Apache Log4PHP included renderer classes for custom object-to-string conversion (`LoggerRenderer`, `LoggerDefaultRenderer`, and related APIs).
+
+This fork removed the renderer subsystem:
+
+- `Xsga\Log4Php\Renderers\LoggerRenderer` removed.
+- `Xsga\Log4Php\Renderers\LoggerRendererDefault` removed.
+- `LoggerHierarchy::getRenderer()` removed.
+
+Message rendering now relies on standard string casting and PSR-3 context interpolation.
+
+---
+
+## 7. Filter System Removed
 
 The original library included a complete filter chain system attached to appenders:
 
@@ -128,7 +143,7 @@ This entire subsystem has been **removed** in this fork. Filtering is handled at
 
 ---
 
-## 7. Diagnostic Context Classes Removed
+## 8. Diagnostic Context Classes Removed
 
 The following utility classes from the original library have been removed:
 
@@ -142,7 +157,7 @@ Request-scoped context is now handled through the PSR-3 `$context` array passed 
 
 ---
 
-## 8. Pattern Converters
+## 9. Pattern Converters
 
 The `LoggerLayoutPattern` converter set has been updated and extended:
 
@@ -164,11 +179,11 @@ The `LoggerLayoutPattern` converter set has been updated and extended:
 | `%server` (`%s`) | ✅ | ✅ | |
 | `%session` (`%ses`) | ✅ | ✅ | |
 | `%sessionid` (`%sid`) | ✅ | ✅ | |
-| `%requestid` (`%rid`) | ❌ | ✅ | *New* — reads `$_ENV['REQUEST_ID']` |
+| `%requestid` (`%rid`) | ❌ | ✅ | Reads `$_ENV['REQUEST_ID']` |
 
 ---
 
-## 9. Configuration
+## 10. Configuration
 
 | Format | Apache Log4PHP | xsga/log4php |
 |---|:---:|:---:|
@@ -183,7 +198,7 @@ The `.properties` file format adapter has been removed.
 
 ---
 
-## 10. Developer Tooling
+## 11. Developer Tooling
 
 The original project had no enforced code quality tooling beyond PHPUnit tests. This fork introduces a full quality pipeline managed via Composer scripts:
 
