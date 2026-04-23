@@ -8,25 +8,19 @@ use Stringable;
 
 final class LoggerLoggingEvent
 {
-    private readonly string $categoryName;
     private readonly string $renderedMessage;
     private readonly float $timeStamp;
     private readonly LoggerLocationInfo $locationInfo;
 
     public function __construct(
-        Logger|string $logger,
+        private readonly string $loggerName,
         private readonly LoggerLevel $level,
         string|Stringable $message,
         private readonly array $context = []
     ) {
         $this->timeStamp       = microtime(true);
         $this->renderedMessage = $this->setRenderedMessage($message);
-        $this->locationInfo    = $this->setLocationInformation();
-
-        $this->categoryName = match (true) {
-            $logger instanceof Logger => $logger->getName(),
-            default => strval($logger)
-        };
+        $this->locationInfo    = new LoggerLocationInfo(debug_backtrace());
     }
 
     public function getLocationInformation(): LoggerLocationInfo
@@ -41,7 +35,7 @@ final class LoggerLoggingEvent
 
     public function getLoggerName(): string
     {
-        return $this->categoryName;
+        return $this->loggerName;
     }
 
     public function getRenderedMessage(): string
@@ -57,57 +51,6 @@ final class LoggerLoggingEvent
     public function getContext(): array
     {
         return $this->context;
-    }
-
-    private function setLocationInformation(): LoggerLocationInfo
-    {
-        $locationInfo = [];
-        $trace        = debug_backtrace();
-        $prevHop      = null;
-
-        $hop = array_pop($trace);
-
-        while ($hop !== null) {
-            if (isset($hop['class'])) {
-                $classNameRaw = $hop['class'];
-                $className = strtolower(
-                    str_replace(strtolower(LoggerNamespaces::LOG4PHP_NAMESPACE), '', strtolower($classNameRaw))
-                );
-                $parentClass = get_parent_class($classNameRaw);
-                if (
-                    !empty($className) && (
-                    $className === 'logger' ||
-                    ($parentClass !== false && strtolower($parentClass) === 'logger'))
-                ) {
-                    $locationInfo['line'] = $hop['line'] ?? 0;
-                    $locationInfo['file'] = $hop['file'] ?? '';
-                    break;
-                }
-            }
-
-            $prevHop = $hop;
-            $hop     = array_pop($trace);
-        }
-
-        $locationInfo['class'] = match (true) {
-            isset($prevHop['class']) => $prevHop['class'],
-            isset($prevHop['function']) => $prevHop['function'],
-            default => 'main'
-        };
-
-        if (
-            isset($prevHop['function']) &&
-            $prevHop['function'] !== 'include' &&
-            $prevHop['function'] !== 'include_once' &&
-            $prevHop['function'] !== 'require' &&
-            $prevHop['function'] !== 'require_once'
-        ) {
-            $locationInfo['function'] = $prevHop['function'];
-        } else {
-            $locationInfo['function'] = 'main';
-        }
-
-        return new LoggerLocationInfo($locationInfo);
     }
 
     private function setRenderedMessage(string|Stringable $message): string
@@ -142,7 +85,7 @@ final class LoggerLoggingEvent
     public function __sleep(): array
     {
         return [
-            'categoryName',
+            'loggerName',
             'level',
             'renderedMessage',
             'timeStamp',

@@ -13,12 +13,25 @@ final class LoggerLocationInfo
     private readonly string $className;
     private readonly string $methodName;
 
-    public function __construct(array $trace)
+    /**
+     * @param list<array{
+     *     file?: string,
+     *     line?: int,
+     *     function?: string,
+     *     class?: class-string,
+     *     object?: object,
+     *     type?: string,
+     *     args?: list<mixed>
+     * }> $backTrace
+     */
+    public function __construct(array $backTrace)
     {
-        $this->lineNumber = isset($trace['line']) ? (string)$trace['line'] : self::LOCATION_INFO_NA;
-        $this->fileName   = isset($trace['file']) ? (string)$trace['file'] : self::LOCATION_INFO_NA;
-        $this->className  = isset($trace['class']) ? (string)$trace['class'] : self::LOCATION_INFO_NA;
-        $this->methodName = isset($trace['function']) ? (string)$trace['function'] : self::LOCATION_INFO_NA;
+        $trace = $this->getLocationInfoFromBacktrace($backTrace);
+
+        $this->lineNumber = $trace['line'] ?? self::LOCATION_INFO_NA;
+        $this->fileName   = $trace['file'] ?? self::LOCATION_INFO_NA;
+        $this->className  = $trace['class'] ?? self::LOCATION_INFO_NA;
+        $this->methodName = $trace['function'] ?? self::LOCATION_INFO_NA;
     }
 
     public function getClassName(): string
@@ -39,5 +52,70 @@ final class LoggerLocationInfo
     public function getMethodName(): string
     {
         return $this->methodName;
+    }
+
+    /**
+     * @param list<array{
+     *     file?: string,
+     *     line?: int,
+     *     function?: string,
+     *     class?: class-string,
+     *     object?: object,
+     *     type?: string,
+     *     args?: list<mixed>
+     * }> $backTrace
+     *
+     * @return array{file?: string, line?: string, class: string, function: string}
+     */
+    private function getLocationInfoFromBacktrace(array $backTrace): array
+    {
+        $trace   = [];
+        $prevHop = null;
+
+        $hop = array_pop($backTrace);
+
+        while ($hop !== null) {
+            if (isset($hop['class'])) {
+                $classNameRaw = $hop['class'];
+                $parentClass = get_parent_class($classNameRaw);
+                $className = strtolower(
+                    str_replace(strtolower(LoggerNamespaces::LOG4PHP_NAMESPACE), '', strtolower($classNameRaw))
+                );
+
+                if (
+                    !empty($className) && (
+                    $className === 'logger' ||
+                    ($parentClass !== false && strtolower($parentClass) === 'logger'))
+                ) {
+                    $trace['line'] = isset($hop['line']) ? (string)$hop['line'] : '0';
+                    $trace['file'] = $hop['file'] ?? '';
+                    break;
+                }
+            }
+
+            $prevHop = $hop;
+            $hop     = array_pop($backTrace);
+        }
+
+        $trace['class'] = match (true) {
+            isset($prevHop['class']) => $prevHop['class'],
+            isset($prevHop['function']) => $prevHop['function'],
+            default => 'main'
+        };
+
+        if (
+            isset($prevHop['function']) &&
+            $prevHop['function'] !== 'include' &&
+            $prevHop['function'] !== 'include_once' &&
+            $prevHop['function'] !== 'require' &&
+            $prevHop['function'] !== 'require_once'
+        ) {
+            $trace['function'] = $prevHop['function'];
+            return $trace;
+        }
+
+        $trace['function'] = 'main';
+
+        return $trace;
     }
 }

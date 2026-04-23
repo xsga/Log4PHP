@@ -251,7 +251,7 @@ final class LoggerConfiguratorDefault implements LoggerConfigurator
     /** @param AppenderConfig $config */
     private function parseAppenderLayout(array $config, LoggerAppender $appender): void
     {
-        if ($appender->requiresLayout() && isset($config['layout'])) {
+        if (isset($config['layout'])) {
             $this->createAppenderLayout($appender, $config['layout']);
         }
     }

@@ -80,7 +80,7 @@ class Logger implements LoggerInterface
             return;
         }
 
-        $event = new LoggerLoggingEvent($this, $level, $message, $context);
+        $event = new LoggerLoggingEvent($this->getName(), $level, $message, $context);
 
         if ($this->isEnabledFor($level)) {
             $this->callAppenders($event);

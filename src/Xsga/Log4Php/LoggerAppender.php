@@ -4,30 +4,19 @@ declare(strict_types=1);
 
 namespace Xsga\Log4Php;
 
-use Xsga\Log4Php\Layouts\LoggerLayoutPattern;
-
 abstract class LoggerAppender extends LoggerConfigurable
 {
     protected bool $closed = false;
     protected ?LoggerLayout $layout = null;
     protected ?LoggerLevel $threshold = null;
-    protected bool $requiresLayout = true;
 
     public function __construct(private string $name = '')
     {
-        if ($this->requiresLayout) {
-            $this->layout = $this->getDefaultLayout();
-        }
     }
 
     public function __destruct()
     {
         $this->close();
-    }
-
-    public function getDefaultLayout(): LoggerLayout
-    {
-        return new LoggerLayoutPattern();
     }
 
     public function doAppend(LoggerLoggingEvent $event): void
@@ -45,19 +34,12 @@ abstract class LoggerAppender extends LoggerConfigurable
 
     public function setLayout(LoggerLayout $layout): void
     {
-        if ($this->requiresLayout()) {
-            $this->layout = $layout;
-        }
+        $this->layout = $layout;
     }
 
     public function getLayout(): ?LoggerLayout
     {
         return $this->layout;
-    }
-
-    public function requiresLayout(): bool
-    {
-        return $this->requiresLayout;
     }
 
     public function getName(): string
