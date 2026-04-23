@@ -4,21 +4,16 @@ declare(strict_types=1);
 
 namespace Xsga\Log4Php;
 
-use Xsga\Log4Php\Renderers\LoggerRenderer;
-use Xsga\Log4Php\Renderers\LoggerRendererDefault;
-
 final class LoggerHierarchy
 {
     /** @var array<string,Logger> */
     private array $loggers = [];
 
-    private LoggerRenderer $renderer;
     private LoggerLevel $threshold;
 
     public function __construct(private LoggerRoot $root)
     {
         $this->setThreshold(LoggerLevel::getLevelAll());
-        $this->renderer = new LoggerRendererDefault();
     }
 
     public function clear(): void
@@ -75,11 +70,6 @@ final class LoggerHierarchy
                 $this->updateParents($existingLogger);
             }
         }
-    }
-
-    public function getRenderer(): LoggerRenderer
-    {
-        return $this->renderer;
     }
 
     public function getRootLogger(): LoggerRoot

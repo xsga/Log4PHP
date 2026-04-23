@@ -11,5 +11,4 @@ final class LoggerNamespaces
     public const string CONFIGURATORS_NAMESPACE = 'Xsga\\Log4Php\\Configurators\\';
     public const string LAYOUTS_NAMESPACE = 'Xsga\\Log4Php\\Layouts\\';
     public const string PATTERN_NAMESPACE = 'Xsga\\Log4Php\\Pattern\\';
-    public const string RENDERERS_NAMESPACE = 'Xsga\\Log4Php\\Renderers\\';
 }
