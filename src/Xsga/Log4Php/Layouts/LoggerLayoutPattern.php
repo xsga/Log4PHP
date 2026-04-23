@@ -76,15 +76,16 @@ final class LoggerLayoutPattern extends LoggerLayout
 
     public function setConversionPattern(string $conversionPattern): void
     {
+        if (trim($conversionPattern) === '') {
+            $this->pattern = self::DEFAULT_CONVERSION_PATTERN;
+            return;
+        }
+
         $this->pattern = $conversionPattern;
     }
 
     public function activateOptions(): void
     {
-        if (empty($this->pattern)) {
-            throw new LoggerException("Mandatory parameter 'conversionPattern' is not set.");
-        }
-
         $parser = new LoggerPatternParser($this->pattern, $this->converterMap);
 
         $this->head = $parser->parse();

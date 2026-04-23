@@ -15,6 +15,5 @@
     <issueHandlers>
         <InternalProperty errorLevel="info" />
         <PropertyNotSetInConstructor errorLevel="suppress" />
-        <UndefinedConstant errorLevel="suppress" />
     </issueHandlers>
 </psalm>

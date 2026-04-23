@@ -64,7 +64,7 @@ final class LoggerConfigurationAdapterXML implements LoggerConfigurationAdapter
         libxml_clear_errors();
         $oldValue = libxml_use_internal_errors(true);
 
-        $xml = @simplexml_load_file($url, SimpleXMLElement::class, (int)(LIBXML_NONET | LIBXML_NO_XXE));
+        $xml = @simplexml_load_file($url, SimpleXMLElement::class, LIBXML_NONET | LIBXML_NO_XXE);
         if ($xml === false) {
             $errorStr = '';
             foreach (libxml_get_errors() as $error) {
