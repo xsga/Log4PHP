@@ -41,12 +41,7 @@ use Xsga\Log4Php\Helpers\LoggerOptionConverter;
  */
 final class LoggerConfiguratorDefault implements LoggerConfigurator
 {
-    public const string FORMAT_XML = 'xml';
-
-    /** @var array<string,string> */
-    private array $adapters = [
-        self::FORMAT_XML => 'LoggerConfigurationAdapterXML',
-    ];
+    private const string XML_ADAPTER = 'LoggerConfigurationAdapterXML';
 
     /** @var Config */
     private static array $defaultConfiguration = [
@@ -57,7 +52,10 @@ final class LoggerConfiguratorDefault implements LoggerConfigurator
         ],
         'appenders'  => [
             'default' => [
-                'class' => 'LoggerAppenderDailyFile',
+                'class' => 'LoggerAppenderConsole',
+                'layout' => [
+                    'class' => 'LoggerLayoutSimple'
+                ]
             ]
         ],
         'loggers' => []
@@ -87,7 +85,10 @@ final class LoggerConfiguratorDefault implements LoggerConfigurator
             /** @var string $input */
             $config = $this->parseFile($input);
         } catch (LoggerException $exception) {
-            $this->warn('Configuration failed: ' . $exception->getMessage() . 'Using default configuration.');
+            $errorMsg  = 'Configuration XML file parsing failed: [' . $exception::class . ']: ';
+            $errorMsg .= $exception->getMessage() . '. Using default configuration.';
+            $this->warn($errorMsg);
+
             $config = static::$defaultConfiguration;
         }
 
@@ -98,11 +99,10 @@ final class LoggerConfiguratorDefault implements LoggerConfigurator
     private function parseFile(string $url): array
     {
         if (!file_exists($url)) {
-            throw new LoggerException("log4php: File not found at \"$url\".");
+            throw new LoggerException("log4php: File not found at \"$url\"");
         }
 
-        $type         = $this->getConfigType($url);
-        $adapterClass = LoggerNamespaces::CONFIGURATORS_NAMESPACE . $this->adapters[$type];
+        $adapterClass = LoggerNamespaces::CONFIGURATORS_NAMESPACE . self::XML_ADAPTER;
 
         /** @var LoggerConfigurationAdapter */
         $adapter = new $adapterClass();
@@ -111,23 +111,6 @@ final class LoggerConfiguratorDefault implements LoggerConfigurator
         $config = $adapter->convert($url);
 
         return $config;
-    }
-
-    private function getConfigType(string $url): string
-    {
-        $info = pathinfo($url);
-        $ext  = strtolower($info['extension'] ?? '');
-
-        $format = match ($ext) {
-            'xml'   => self::FORMAT_XML,
-            default => null
-        };
-
-        if ($format === null) {
-            throw new LoggerException("log4php: Unsupported configuration file extension \"$ext\".");
-        }
-
-        return $format;
     }
 
     /** @param Config $config */
@@ -145,10 +128,11 @@ final class LoggerConfiguratorDefault implements LoggerConfigurator
         if (isset($config['threshold'])) {
             $threshold = LoggerLevel::toLevel($config['threshold']);
 
-            if (isset($threshold)) {
+            if ($threshold !== null) {
                 $hierarchy->setThreshold($threshold);
                 return;
             }
+
             $errorMsg  = 'Invalid threshold value "' . $config['threshold'] . '"';
             $errorMsg .= ' specified. Ignoring threshold definition.';
             $this->warn($errorMsg);
@@ -334,7 +318,7 @@ final class LoggerConfiguratorDefault implements LoggerConfigurator
     {
         if (isset($config['level'])) {
             $level = LoggerLevel::toLevel($config['level']);
-            if (isset($level)) {
+            if ($level !== null) {
                 $logger->setLevel($level);
                 return;
             }

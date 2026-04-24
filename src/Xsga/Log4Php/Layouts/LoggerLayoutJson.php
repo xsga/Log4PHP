@@ -30,7 +30,7 @@ final class LoggerLayoutJson extends LoggerLayout
             'request_id' => $_ENV['REQUEST_ID'] ?? null,
         ];
 
-        $data = $this->setPromotedFields($event, $data);
+        $this->setPromotedFields($event, $data);
 
         $data['location'] = $this->getLocationInformation($event);
         $data['context']  = $event->getContext();
@@ -45,7 +45,7 @@ final class LoggerLayoutJson extends LoggerLayout
         return $json . PHP_EOL;
     }
 
-    private function setPromotedFields(LoggerLoggingEvent $event, array $data): array
+    private function setPromotedFields(LoggerLoggingEvent $event, array &$data): void
     {
         $context = $event->getContext();
 
@@ -57,11 +57,9 @@ final class LoggerLayoutJson extends LoggerLayout
                 }
             }
         }
-
-        return $data;
     }
 
-    public function setPrettyPrint(bool|string|int $prettyPrint): void
+    public function setPrettyPrint(string|null $prettyPrint): void
     {
         if (is_string($prettyPrint)) {
             $value = strtolower(trim($prettyPrint));
