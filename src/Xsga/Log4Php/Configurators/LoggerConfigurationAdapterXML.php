@@ -120,8 +120,9 @@ final class LoggerConfigurationAdapterXML implements LoggerConfigurationAdapter
             $appender['threshold'] = $this->getAttributeValue($node, 'threshold');
         }
 
-        if (!empty($node->layout)) {
-            $appender['layout'] = $this->parseLayout($node->layout);
+        $layoutNodes = $node->xpath('./*[local-name()="layout"]');
+        if (is_array($layoutNodes) && isset($layoutNodes[0])) {
+            $appender['layout'] = $this->parseLayout($layoutNodes[0]);
         }
 
         if (count($node->param) > 0) {
