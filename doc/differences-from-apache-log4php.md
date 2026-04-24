@@ -27,7 +27,6 @@ The original library targeted PHP 5.2.7 and used no namespaces, relying on a cus
 - Union types, nullable types, and `readonly` properties where appropriate.
 - PSR-4 namespacing under `Xsga\Log4Php\`.
 - No custom autoloader — standard Composer PSR-4 autoloading only.
-- Requires `libxml >= 2.13.0`.
 
 ---
 

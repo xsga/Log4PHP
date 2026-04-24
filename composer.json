@@ -13,7 +13,6 @@
   ],
   "require": {
     "php": "^8.4",
-    "lib-libxml": ">=2.13.0",
     "psr/log": "^3.0"
   },
   "require-dev": {

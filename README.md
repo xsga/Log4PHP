@@ -40,7 +40,6 @@ If you are migrating from or comparing against the original Apache Log4PHP libra
 ## Requirements
 
 - PHP **8.4** or higher
-- libxml **>= 2.13.0**
 - Composer
 
 ---
