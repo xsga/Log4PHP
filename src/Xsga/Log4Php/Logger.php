@@ -103,14 +103,14 @@ class Logger implements LoggerInterface
         }
     }
 
-    public function callAppenders(LoggerLoggingEvent $event): void
+    private function callAppenders(LoggerLoggingEvent $event): void
     {
         foreach ($this->appenders as $appender) {
             $appender->doAppend($event);
         }
     }
 
-    public function isEnabledFor(LoggerLevel $level): bool
+    private function isEnabledFor(LoggerLevel $level): bool
     {
         if (self::getHierarchy()->isDisabled($level)) {
             return false;
@@ -154,7 +154,7 @@ class Logger implements LoggerInterface
         $this->additive = $additive;
     }
 
-    public function getEffectiveLevel(): ?LoggerLevel
+    protected function getEffectiveLevel(): ?LoggerLevel
     {
         for ($logger = $this; $logger !== null; $logger = $logger->getParent()) {
             if ($logger->getLevel() !== null) {

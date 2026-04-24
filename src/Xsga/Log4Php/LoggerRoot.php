@@ -17,7 +17,7 @@ final class LoggerRoot extends Logger
         $this->setLevel($level);
     }
 
-    public function getEffectiveLevel(): ?LoggerLevel
+    protected function getEffectiveLevel(): ?LoggerLevel
     {
         return $this->getLevel();
     }

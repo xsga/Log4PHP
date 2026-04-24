@@ -37,11 +37,6 @@ abstract class LoggerAppender extends LoggerConfigurable
         $this->layout = $layout;
     }
 
-    public function getLayout(): ?LoggerLayout
-    {
-        return $this->layout;
-    }
-
     public function getName(): string
     {
         return $this->name;
@@ -52,28 +47,18 @@ abstract class LoggerAppender extends LoggerConfigurable
         $this->name = $name;
     }
 
-    public function getThreshold(): ?LoggerLevel
-    {
-        return $this->threshold;
-    }
-
     public function setThreshold(LoggerLevel $threshold): void
     {
         $this->setLevel('threshold', $threshold);
     }
 
-    public function isAsSevereAsThreshold(LoggerLevel $level): bool
+    private function isAsSevereAsThreshold(LoggerLevel $level): bool
     {
         if ($this->threshold === null) {
             return true;
         }
 
-        $threshold = $this->getThreshold();
-        if ($threshold === null) {
-            return true;
-        }
-
-        return $level->isGreaterOrEqual($threshold);
+        return $level->isGreaterOrEqual($this->threshold);
     }
 
     public function activateOptions(): void
