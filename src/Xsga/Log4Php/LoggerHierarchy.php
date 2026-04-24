@@ -21,17 +21,6 @@ final class LoggerHierarchy
         $this->loggers = [];
     }
 
-    public function exists(string $name): bool
-    {
-        return isset($this->loggers[$name]);
-    }
-
-    /** @return Logger[] */
-    public function getCurrentLoggers(): array
-    {
-        return array_values($this->loggers);
-    }
-
     public function getLogger(string $name): Logger
     {
         if (!isset($this->loggers[$name])) {
@@ -97,7 +86,7 @@ final class LoggerHierarchy
 
         $root->setLevel(LoggerLevel::getLevelDebug());
         $this->setThreshold(LoggerLevel::getLevelAll());
-        $this->shutDown();
+        $this->shutdown();
 
         foreach ($this->loggers as $logger) {
             $logger->setLevel(null);
@@ -117,26 +106,6 @@ final class LoggerHierarchy
 
         foreach ($this->loggers as $logger) {
             $logger->removeAllAppenders();
-        }
-    }
-
-    public function printHierarchy(): void
-    {
-        $this->printHierarchyInner($this->getRootLogger(), 0);
-    }
-
-    private function printHierarchyInner(Logger $current, int $level): void
-    {
-        for ($i = 0; $i < $level; $i++) {
-            echo ($i === $level - 1) ? '|--' : '|  ';
-        }
-
-        echo $current->getName() . "\n";
-
-        foreach ($this->loggers as $logger) {
-            if ($logger->getParent() === $current) {
-                $this->printHierarchyInner($logger, ($level + 1));
-            }
         }
     }
 }

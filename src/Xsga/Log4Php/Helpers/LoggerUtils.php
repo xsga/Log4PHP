@@ -6,22 +6,6 @@ namespace Xsga\Log4Php\Helpers;
 
 final class LoggerUtils
 {
-    /** @return string[] */
-    public static function tokenizeClassName(string $name): array
-    {
-        $name      = str_replace('.', '\\', $name);
-        $name      = trim($name, ' \\');
-        $fragments = explode('\\', $name);
-
-        foreach ($fragments as $key => $fragment) {
-            if (trim($fragment) === '') {
-                unset($fragments[$key]);
-            }
-        }
-
-        return $fragments;
-    }
-
     public static function shortenClassName(string $name, int $length): string
     {
         if ($length < 0) {

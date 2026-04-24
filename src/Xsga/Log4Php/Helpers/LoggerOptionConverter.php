@@ -12,7 +12,7 @@ final class LoggerOptionConverter
     private static array $trueValues = ['1', 'true', 'yes', 'on'];
     private static array $falseValues = ['0', 'false', 'no', 'off', ''];
 
-    public static function getSystemProperty(string $key, string $def): string
+    private static function getSystemProperty(string $key, string $def): string
     {
         if (defined($key)) {
             return (string)constant($key);

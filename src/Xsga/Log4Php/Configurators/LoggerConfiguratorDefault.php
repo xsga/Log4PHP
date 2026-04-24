@@ -73,7 +73,7 @@ final class LoggerConfiguratorDefault implements LoggerConfigurator
         $this->doConfigure($hierarchy, $config);
     }
 
-    public function parse(string|array|null $input): array
+    private function parse(string|array|null $input): array
     {
         if ($input === null || (is_string($input) && trim($input) === '') || (is_array($input) && $input === [])) {
             return static::$defaultConfiguration;
@@ -92,11 +92,6 @@ final class LoggerConfiguratorDefault implements LoggerConfigurator
         }
 
         return $config;
-    }
-
-    public static function getDefaultConfiguration(): array
-    {
-        return static::$defaultConfiguration;
     }
 
     /** @return Config */

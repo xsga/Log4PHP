@@ -171,28 +171,13 @@ final class LoggerAppenderRollingFile extends LoggerAppenderFile
         $this->setPositiveInteger('maxBackupIndex', $maxBackupIndex);
     }
 
-    public function getMaxBackupIndex(): int
-    {
-        return $this->maxBackupIndex;
-    }
-
     public function setMaxFileSize(string $maxFileSize): void
     {
         $this->setFileSize('maxFileSize', $maxFileSize);
     }
 
-    public function getMaxFileSize(): int
-    {
-        return $this->maxFileSize;
-    }
-
     public function setCompress(bool $compress): void
     {
         $this->setBoolean('compress', $compress);
-    }
-
-    public function getCompress(): bool
-    {
-        return $this->compress;
     }
 }

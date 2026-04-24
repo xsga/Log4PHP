@@ -152,12 +152,7 @@ class LoggerAppenderFile extends LoggerAppender
         $this->setString('file', $file);
     }
 
-    public function getFile(): string
-    {
-        return $this->file;
-    }
-
-    public function getAppend(): bool
+    protected function getAppend(): bool
     {
         return $this->append;
     }

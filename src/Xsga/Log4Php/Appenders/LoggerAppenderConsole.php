@@ -57,11 +57,6 @@ final class LoggerAppenderConsole extends LoggerAppender
         $this->setString('target', $value);
     }
 
-    public function getTarget(): string
-    {
-        return $this->target;
-    }
-
     public function close(): void
     {
         if (is_resource($this->stream)) {

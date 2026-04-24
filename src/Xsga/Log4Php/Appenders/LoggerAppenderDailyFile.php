@@ -56,9 +56,4 @@ final class LoggerAppenderDailyFile extends LoggerAppenderFile
     {
         $this->setString('datePattern', $datePattern);
     }
-
-    public function getDatePattern(): string
-    {
-        return $this->datePattern;
-    }
 }

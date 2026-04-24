@@ -27,15 +27,6 @@ final class LoggerLevel
     ) {
     }
 
-    public function equals(LoggerLevel $other): bool
-    {
-        if ($this->level === $other->getLevel()) {
-            return true;
-        }
-
-        return false;
-    }
-
     public static function getLevelOff(): LoggerLevel
     {
         if (!isset(static::$levelMap[self::OFF])) {
