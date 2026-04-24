@@ -98,7 +98,7 @@ Implemented appenders in this fork are currently: `File`, `DailyFile`, `RollingF
 | `LoggerLayoutJson` | ❌ | ✅ |
 | `LoggerLayoutHtml` | ✅ | ❌ |
 | `LoggerLayoutXml` | ✅ | ❌ |
-| `LoggerLayoutSimple` | ✅ | ❌ |
+| `LoggerLayoutSimple` | ✅ | ✅ |
 | `LoggerLayoutSerialized` | ✅ | ❌ |
 | `LoggerLayoutTTCC` *(deprecated)* | ✅ | ❌ |
 

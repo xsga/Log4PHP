@@ -333,6 +333,20 @@ The following context keys are automatically **promoted to top-level fields**: `
 </layout>
 ```
 
+### LoggerLayoutSimple
+
+Formats log events as plain text with log level and rendered message, one event per line.
+
+**Output format:**
+
+```text
+LEVEL - message
+```
+
+```xml
+<layout class="LoggerLayoutSimple" />
+```
+
 ---
 
 ## Pattern Conversion Characters
