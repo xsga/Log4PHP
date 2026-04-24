@@ -66,10 +66,9 @@ final class LoggerConfigurationAdapterXML implements LoggerConfigurationAdapter
 
         $libxmlOptions = LIBXML_NONET;
         if (defined('LIBXML_NO_XXE')) {
+            /** @var int $libxmlNoXxe */
             $libxmlNoXxe = constant('LIBXML_NO_XXE');
-            if (is_int($libxmlNoXxe)) {
-                $libxmlOptions |= $libxmlNoXxe;
-            }
+            $libxmlOptions |= $libxmlNoXxe;
         }
 
         $xml = @simplexml_load_file($url, SimpleXMLElement::class, $libxmlOptions);
