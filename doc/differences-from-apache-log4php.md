@@ -10,7 +10,6 @@ This document describes the main differences between **xsga/log4php** and the or
 |---|---|---|
 | Status | Archived (Dec 2020) | Actively maintained |
 | PHP requirement | `>= 5.2.7` | `^8.4` |
-| License | Apache-2.0 | MIT |
 | PSR-3 compliance | No | Yes (`Psr\Log\LoggerInterface`) |
 | Autoloading | Classmap + custom autoloader | PSR-4 (`Xsga\Log4Php\`) |
 | Code style standard | None enforced | PSR-12 |
