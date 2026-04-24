@@ -84,12 +84,14 @@ abstract class LoggerConfigurable
 
     protected function warn(string $message): void
     {
-        $class = get_class($this);
-        trigger_error("log4php: $class : $message", E_USER_WARNING);
+        trigger_error('log4php: [' . get_class($this) . ']: ' . $message, E_USER_WARNING);
     }
 
     private function getErrorMsg(string $property, string $value, string $type): string
     {
-         return "Invalid value given for '$property' property: [$value]. Expected $type value. Property not changed.";
+        $message  = "Invalid value given for \"$property\" property: \"$value\". ";
+        $message .= "Expected \"$type\" value. Property not changed.";
+
+        return $message;
     }
 }

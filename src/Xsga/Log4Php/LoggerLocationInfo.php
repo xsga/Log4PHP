@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Xsga\Log4Php;
 
+use Xsga\Log4Php\Helpers\LoggerNamespaces;
+
 final class LoggerLocationInfo
 {
     private const string LOCATION_INFO_NA = 'NA';

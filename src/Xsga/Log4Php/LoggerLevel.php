@@ -6,17 +6,17 @@ namespace Xsga\Log4Php;
 
 final class LoggerLevel
 {
-    public const int OFF       = 10;
-    public const int EMERGENCY = 9;
-    public const int ALERT     = 8;
-    public const int CRITICAL  = 7;
-    public const int ERROR     = 6;
-    public const int WARNING   = 5;
-    public const int NOTICE    = 4;
-    public const int INFO      = 3;
-    public const int DEBUG     = 2;
-    public const int TRACE     = 1;
-    public const int ALL       = 0;
+    private const int OFF       = 10;
+    private const int EMERGENCY = 9;
+    private const int ALERT     = 8;
+    private const int CRITICAL  = 7;
+    private const int ERROR     = 6;
+    private const int WARNING   = 5;
+    private const int NOTICE    = 4;
+    private const int INFO      = 3;
+    private const int DEBUG     = 2;
+    private const int TRACE     = 1;
+    private const int ALL       = 0;
 
     /** @var LoggerLevel[] */
     private static array $levelMap = [];

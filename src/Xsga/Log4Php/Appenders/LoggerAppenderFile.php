@@ -62,7 +62,7 @@ class LoggerAppenderFile extends LoggerAppender
             return true;
         }
 
-        $this->warn("Failed creating target directory [$dir]. Closing appender.");
+        $this->warn("Failed creating target directory \"$dir\". Closing appender.");
         $this->closed = true;
         return false;
     }
@@ -125,7 +125,7 @@ class LoggerAppenderFile extends LoggerAppender
     public function activateOptions(): void
     {
         if (empty($this->file)) {
-            $this->warn("Required parameter 'file' not set. Closing appender.");
+            $this->warn("Required parameter \"file\" not set. Closing appender.");
             $this->closed = true;
         }
     }

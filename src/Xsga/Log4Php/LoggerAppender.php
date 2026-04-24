@@ -90,7 +90,6 @@ abstract class LoggerAppender extends LoggerConfigurable
 
     protected function warn(mixed $message): void
     {
-        $id = get_class($this) . (empty($this->name) ? '' : ": $this->name");
-        trigger_error("log4php: [$id]: $message", E_USER_WARNING);
+        trigger_error('log4php: [' . get_class($this) . ']: ' . (string)$message, E_USER_WARNING);
     }
 }

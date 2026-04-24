@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Xsga\Log4Php\Configurators;
 
 use Exception;
+use ReflectionClass;
 use Xsga\Log4Php\LoggerConfigurator;
 use Xsga\Log4Php\LoggerHierarchy;
 use Xsga\Log4Php\LoggerException;
@@ -12,9 +13,8 @@ use Xsga\Log4Php\LoggerLevel;
 use Xsga\Log4Php\LoggerAppender;
 use Xsga\Log4Php\Logger;
 use Xsga\Log4Php\LoggerLayout;
+use Xsga\Log4Php\Helpers\LoggerNamespaces;
 use Xsga\Log4Php\Helpers\LoggerOptionConverter;
-use Xsga\Log4Php\LoggerNamespaces;
-use ReflectionClass;
 
 /**
  * @psalm-type LayoutConfig = array{
@@ -87,7 +87,7 @@ final class LoggerConfiguratorDefault implements LoggerConfigurator
             /** @var string $input */
             $config = $this->parseFile($input);
         } catch (LoggerException $exception) {
-            $this->warn('Configuration failed.' . $exception->getMessage() . 'Using default configuration.');
+            $this->warn('Configuration failed: ' . $exception->getMessage() . 'Using default configuration.');
             $config = static::$defaultConfiguration;
         }
 
@@ -103,7 +103,7 @@ final class LoggerConfiguratorDefault implements LoggerConfigurator
     private function parseFile(string $url): array
     {
         if (!file_exists($url)) {
-            throw new LoggerException("File not found at [$url].");
+            throw new LoggerException("log4php: File not found at \"$url\".");
         }
 
         $type         = $this->getConfigType($url);
@@ -129,7 +129,7 @@ final class LoggerConfiguratorDefault implements LoggerConfigurator
         };
 
         if ($format === null) {
-            throw new LoggerException("Unsupported configuration file extension: $ext");
+            throw new LoggerException("log4php: Unsupported configuration file extension \"$ext\".");
         }
 
         return $format;
@@ -154,9 +154,9 @@ final class LoggerConfiguratorDefault implements LoggerConfigurator
                 $hierarchy->setThreshold($threshold);
                 return;
             }
-            $log  = 'Invalid threshold value [' . $config['threshold'] . ']';
-            $log .= ' specified. Ignoring threshold definition.';
-            $this->warn($log);
+            $errorMsg  = 'Invalid threshold value "' . $config['threshold'] . '"';
+            $errorMsg .= ' specified. Ignoring threshold definition.';
+            $this->warn($errorMsg);
         }
     }
 
@@ -191,16 +191,16 @@ final class LoggerConfiguratorDefault implements LoggerConfigurator
     private function configureAppender(string $name, array $config): void
     {
         if (!isset($config['class']) || $config['class'] === '') {
-            $this->warn("No class given for appender [$name]. Skipping appender definition.");
+            $this->warn("No class given for appender \"$name\". Skipping appender definition.");
             return;
         }
 
         $class = LoggerNamespaces::APPENDERS_NAMESPACE . $config['class'];
 
         if (!class_exists($class)) {
-            $log  = "Invalid class [$class ] given for appender [$name]. ";
-            $log .= 'Class does not exist. Skipping appender definition.';
-            $this->warn($log);
+            $errorMsg  = "Invalid class \"$class\" given for appender \"$name\". ";
+            $errorMsg .= 'Class does not exist. Skipping appender definition.';
+            $this->warn($errorMsg);
             return;
         }
 
@@ -208,18 +208,18 @@ final class LoggerConfiguratorDefault implements LoggerConfigurator
         $constructor = $reflection->getConstructor();
 
         if ($constructor === null || $constructor->getNumberOfParameters() !== 1) {
-            $log  = "Appender class [$class] specified for appender [$name]";
-            $log .= " has a constructor with parameters. Skipping appender definition.";
-            $this->warn($log);
+            $errorMsg  = "Appender class \"$class\" specified for appender \"$name\"";
+            $errorMsg .= " has a constructor with parameters. Skipping appender definition.";
+            $this->warn($errorMsg);
             return;
         }
 
         $appender = $reflection->newInstance($name);
 
         if (!($appender instanceof LoggerAppender)) {
-            $log  = "Invalid class [$class] given for appender [$name]";
-            $log .= ' Not a valid LoggerAppender class. Skipping appender definition.';
-            $this->warn($log);
+            $errorMsg  = "Invalid class \"$class\" given for appender \"$name\"";
+            $errorMsg .= ' Not a valid LoggerAppender class. Skipping appender definition.';
+            $this->warn($errorMsg);
             return;
         }
 
@@ -242,9 +242,9 @@ final class LoggerConfiguratorDefault implements LoggerConfigurator
                 return;
             }
 
-            $log  = 'Invalid threshold value [' . $config['threshold'] . "] specified for appender [$name]. ";
-            $log .= 'Ignoring threshold definition.';
-            $this->warn($log);
+            $errorMsg  = 'Invalid threshold value "' . $config['threshold'] . "\" specified for appender \"$name\". ";
+            $errorMsg .= 'Ignoring threshold definition.';
+            $this->warn($errorMsg);
         }
     }
 
@@ -270,15 +270,16 @@ final class LoggerConfiguratorDefault implements LoggerConfigurator
         $name = $appender->getName();
 
         if (!isset($config['class']) || $config['class'] === '') {
-            $this->warn("Layout class not specified for appender [$name]. Reverting to default layout.");
+            $this->warn("Layout class not specified for appender \"$name\". Reverting to default layout.");
             return;
         }
 
         $class = LoggerNamespaces::LAYOUTS_NAMESPACE . $config['class'];
 
         if (!class_exists($class)) {
-            $log = "Nonexistent layout class [$class] specified for appender [$name]. Reverting to default layout";
-            $this->warn($log);
+            $errorMsg  = "Nonexistent layout class \"$class\" specified for appender \"$name\". ";
+            $errorMsg .= "Reverting to default layout.";
+            $this->warn($errorMsg);
             return;
         }
 
@@ -286,17 +287,18 @@ final class LoggerConfiguratorDefault implements LoggerConfigurator
         $constructor = $reflection->getConstructor();
 
         if ($constructor?->getNumberOfParameters() > 0) {
-            $log  = "Layout class [$class] specified for appender [$name]";
-            $log .= " has a constructor with parameters. Reverting to default layout.";
-            $this->warn($log);
+            $errorMsg  = "Layout class \"$class\" specified for appender \"$name\"";
+            $errorMsg .= " has a constructor with parameters. Reverting to default layout.";
+            $this->warn($errorMsg);
             return;
         }
 
         $layout = $reflection->newInstance();
 
         if (!($layout instanceof LoggerLayout)) {
-            $log = "Invalid layout class [$class] sepcified for appender [$name]. Reverting to default layout.";
-            $this->warn($log);
+            $errorMsg  = "Invalid layout class \"$class\" specified for appender \"$name\". ";
+            $errorMsg .= "Reverting to default layout.";
+            $this->warn($errorMsg);
             return;
         }
 
@@ -342,9 +344,9 @@ final class LoggerConfiguratorDefault implements LoggerConfigurator
                 return;
             }
 
-            $log  = 'Invalid level value [' . $config['level'] . "] specified for logger [$loggerName].";
-            $log .= ' Ignoring level definition.';
-            $this->warn($log);
+            $errorMsg  = 'Invalid level value "' . $config['level'] . '" specified for logger "' . $loggerName . '". ';
+            $errorMsg .= 'Ignoring level definition.';
+            $this->warn($errorMsg);
         }
     }
 
@@ -354,7 +356,7 @@ final class LoggerConfiguratorDefault implements LoggerConfigurator
         if (isset($config['appenders'])) {
             foreach ($config['appenders'] as $appenderName) {
                 if (!is_string($appenderName) || $appenderName === '') {
-                    $this->warn("Invalid appender reference for logger [$loggerName]. Skipping.");
+                    $this->warn("Invalid appender reference for logger \"$loggerName\". Skipping.");
                     continue;
                 }
 
@@ -362,7 +364,7 @@ final class LoggerConfiguratorDefault implements LoggerConfigurator
                     $logger->addAppender($this->appenders[$appenderName]);
                     continue;
                 }
-                $this->warn("Nonexistent appender [$appenderName] linked to logger [$loggerName].");
+                $this->warn("Nonexistent appender \"$appenderName\" linked to logger \"$loggerName\".");
             }
         }
     }
@@ -375,9 +377,9 @@ final class LoggerConfiguratorDefault implements LoggerConfigurator
                 $additivity = LoggerOptionConverter::toBooleanEx($config['additivity']);
                 $logger->setAdditivity($additivity);
             } catch (Exception) {
-                $log  = 'Invalid additivity value [' . $config['additivity'] . '] specified for logger ';
-                $log .= "[$loggerName]. Ignoring additivity setting.";
-                $this->warn($log);
+                $errorMsg  = 'Invalid additivity value "' . $config['additivity'] . '" specified for logger ';
+                $errorMsg .= '"' . $loggerName . '". Ignoring additivity setting.';
+                $this->warn($errorMsg);
             }
         }
     }
@@ -392,12 +394,12 @@ final class LoggerConfiguratorDefault implements LoggerConfigurator
                 continue;
             }
             $class = get_class($object);
-            $this->warn("Nonexistent option [$name] specified on [$class]. Skipping.");
+            $this->warn("Nonexistent option \"$name\" specified on \"$class\". Skipping.");
         }
     }
 
     private function warn(string $message): void
     {
-        trigger_error("log4php: $message", E_USER_WARNING);
+        trigger_error("log4php: [" . get_class($this) . "]: $message", E_USER_WARNING);
     }
 }

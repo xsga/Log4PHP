@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Xsga\Log4Php\Helpers;
 
 use Xsga\Log4Php\LoggerException;
-use Xsga\Log4Php\LoggerNamespaces;
 use Xsga\Log4Php\Pattern\LoggerPatternConverter;
 use Xsga\Log4Php\Pattern\LoggerPatternConverterLiteral;
 use ReflectionClass;
@@ -39,7 +38,7 @@ final class LoggerPatternParser
         }
 
         if (empty($this->regex)) {
-            throw new LoggerException('Regex pattern cannot be empty.');
+            throw new LoggerException('log4php: Regex pattern cannot be empty.');
         }
 
         $count = preg_match_all($this->regex, $this->pattern, $matches, PREG_OFFSET_CAPTURE);
@@ -47,7 +46,7 @@ final class LoggerPatternParser
         if ($count === false) {
             $error    = error_get_last();
             $errorMsg = $error['message'] ?? '';
-            throw new LoggerException("Failed parsing layout pattern: $errorMsg");
+            throw new LoggerException("log4php: Failed parsing layout pattern: $errorMsg");
         }
 
         $prevEnd = 0;
@@ -107,32 +106,34 @@ final class LoggerPatternParser
             return;
         }
 
-        trigger_error("log4php: Invalid keyword \"$word\" in conversion pattern. Ignoring keyword.", E_USER_WARNING);
+        $errorMsg = "Invalid keyword \"$word\" in conversion pattern. Ignoring keyword.";
+        trigger_error("log4php: [" . get_class($this) . "]: $errorMsg", E_USER_WARNING);
     }
 
     private function getConverter(string $word, LoggerFormattingInfo $info, string $option): LoggerPatternConverter
     {
         if (!isset($this->converterMap[$word])) {
-            throw new LoggerException('Invalid keyword "%$word" in converison pattern. Ignoring keyword.');
+            throw new LoggerException("log4php: Invalid keyword \"$word\" in conversion pattern.");
         }
 
         $converterClass = LoggerNamespaces::PATTERN_NAMESPACE . $this->converterMap[$word];
 
         if (!class_exists($converterClass)) {
-            throw new LoggerException("Class '$converterClass' does not exist.");
+            throw new LoggerException("log4php: Class \"$converterClass\" does not exist.");
         }
 
         $reflection  = new ReflectionClass($converterClass);
         $constructor = $reflection->getConstructor();
 
         if ($constructor === null || $constructor->getNumberOfParameters() !== 2) {
-            throw new LoggerException("Class '$converterClass' does not have a valid constructor.");
+            throw new LoggerException("log4php: Class \"$converterClass\" does not have a valid constructor.");
         }
 
         $converter = $reflection->newInstance($info, $option);
 
         if (!($converter instanceof LoggerPatternConverter)) {
-            throw new LoggerException("Class '$converterClass' is not an instance of LoggerPatternConverter.");
+            $errorMsg = "log4php: Class \"$converterClass\" is not an instance of LoggerPatternConverter.";
+            throw new LoggerException($errorMsg);
         }
 
         return $converter;
@@ -163,8 +164,8 @@ final class LoggerPatternParser
         $pattern = '/^(-?[\d]+)?\.?-?[\d]+$/';
 
         if (preg_match($pattern, $modifiers) === false) {
-            $log = "log4php: Invalid modifier in conversion pattern: [$modifiers]. Ignoring modifier.";
-            trigger_error($log, E_USER_WARNING);
+            $errorMsg = "Invalid modifier in conversion pattern: $modifiers. Ignoring modifier.";
+            trigger_error("log4php: [" . get_class($this) . "]: $errorMsg", E_USER_WARNING);
             return $info;
         }
 

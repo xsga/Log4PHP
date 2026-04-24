@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Xsga\Log4Php\Layouts;
 
 use Xsga\Log4Php\LoggerLayout;
-use Xsga\Log4Php\LoggerException;
 use Xsga\Log4Php\Helpers\LoggerPatternParser;
 use Xsga\Log4Php\LoggerLoggingEvent;
 use Xsga\Log4Php\Pattern\LoggerPatternConverter;

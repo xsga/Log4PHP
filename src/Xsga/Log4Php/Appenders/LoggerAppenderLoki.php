@@ -45,19 +45,19 @@ final class LoggerAppenderLoki extends LoggerAppender
         parent::activateOptions();
 
         if (empty($this->url)) {
-            $this->warn('Loki appender requires "url" parameter. Appender will be disabled.');
+            $this->warn('Loki appender requires "url" parameter. Closing appender.');
             $this->closed = true;
             return;
         }
 
         if (empty($this->username)) {
-            $this->warn('Loki appender requires "username" parameter. Appender will be disabled.');
+            $this->warn('Loki appender requires "username" parameter. Closing appender.');
             $this->closed = true;
             return;
         }
 
         if (empty($this->token)) {
-            $this->warn('Loki appender requires "token" parameter. Appender will be disabled.');
+            $this->warn('Loki appender requires "token" parameter. Closing appender.');
             $this->closed = true;
             return;
         }
@@ -100,7 +100,7 @@ final class LoggerAppenderLoki extends LoggerAppender
 
         if ($result === false) {
             $error = curl_error($cUrlHandler);
-            $this->warn("Failed to send logs to Loki: {$error}");
+            $this->warn("Failed to send logs to Loki: $error");
         }
     }
 }

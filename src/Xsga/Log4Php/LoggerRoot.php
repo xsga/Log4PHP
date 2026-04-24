@@ -29,11 +29,11 @@ final class LoggerRoot extends Logger
             return;
         }
 
-        trigger_error('log4php: Cannot set LoggerRoot level to null.', E_USER_WARNING);
+        trigger_error('log4php: [' . get_class($this) . ']: Cannot set LoggerRoot level to null.', E_USER_WARNING);
     }
 
     public function setParent(Logger $logger): void
     {
-        trigger_error('log4php: LoggerRoot cannot have a parent.', E_USER_WARNING);
+        trigger_error('log4php: [' . get_class($this) . ']: LoggerRoot cannot have a parent.', E_USER_WARNING);
     }
 }

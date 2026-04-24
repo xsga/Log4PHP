@@ -50,7 +50,7 @@ final class LoggerAppenderConsole extends LoggerAppender
             && $value !== self::TARGET_STDERR
             && $value !== self::TARGET_PHP
         ) {
-            $this->warn("Invalid target [$target]. Falling back to stdout.");
+            $this->warn("Invalid target \"$target\". Falling back to stdout.");
             $value = self::TARGET_STDOUT;
         }
 

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Xsga\Log4Php;
+namespace Xsga\Log4Php\Helpers;
 
 final class LoggerNamespaces
 {

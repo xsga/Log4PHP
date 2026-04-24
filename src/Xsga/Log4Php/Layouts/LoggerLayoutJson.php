@@ -37,6 +37,8 @@ final class LoggerLayoutJson extends LoggerLayout
 
         $json = json_encode($data, $this->getFlags());
         if ($json === false) {
+            $errorMsg = 'Failed to encode log event to JSON. Using fallback message.';
+            trigger_error('log4php: [' . get_class($this) . ']: ' . $errorMsg, E_USER_WARNING);
             $json = '{"error":"Failed to encode log event to JSON."}';
         }
 

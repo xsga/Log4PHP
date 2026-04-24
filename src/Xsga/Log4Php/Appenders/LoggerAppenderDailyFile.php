@@ -8,7 +8,7 @@ use Xsga\Log4Php\LoggerLoggingEvent;
 
 final class LoggerAppenderDailyFile extends LoggerAppenderFile
 {
-    protected string $datePattern = "Ymd";
+    protected string $datePattern = 'Ymd';
     protected string $currentDate = '';
 
     public function activateOptions(): void

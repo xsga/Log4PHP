@@ -20,7 +20,7 @@ abstract class LoggerPatternConverterSuperglobal extends LoggerPatternConverter
         }
 
         if (!isset($GLOBALS[$this->name])) {
-            trigger_error("log4php: $class: Cannot find superglobal variable " . $this->name, E_USER_WARNING);
+            trigger_error("log4php: [$class]: Cannot find superglobal variable: $" . $this->name, E_USER_WARNING);
             return;
         }
 
@@ -39,7 +39,7 @@ abstract class LoggerPatternConverterSuperglobal extends LoggerPatternConverter
             return;
         }
 
-        trigger_error("log4php: $class: key not provided for superglobal $" . $this->name, E_USER_WARNING);
+        trigger_error("log4php: [$class]: key not provided for superglobal: $" . $this->name, E_USER_WARNING);
     }
 
     public function convert(LoggerLoggingEvent $event): string

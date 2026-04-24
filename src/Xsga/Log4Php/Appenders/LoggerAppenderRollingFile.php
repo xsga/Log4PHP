@@ -25,7 +25,7 @@ final class LoggerAppenderRollingFile extends LoggerAppenderFile
             $file = $this->file . '.' . $this->maxBackupIndex;
 
             if (file_exists($file) && !unlink($file)) {
-                throw new LoggerException("Unable to delete oldest backup file from [$file].");
+                throw new LoggerException("log4php: Unable to delete oldest backup file from \"$file\".");
             }
 
             $this->renameArchievedLogs($this->file);
@@ -33,11 +33,11 @@ final class LoggerAppenderRollingFile extends LoggerAppenderFile
         }
 
         if ($this->fp === null) {
-            throw new LoggerException('File pointer is not valid.');
+            throw new LoggerException('log4php: File pointer is not valid.');
         }
 
         if (!is_resource($this->fp)) {
-            throw new LoggerException('File pointer is not a valid resource.');
+            throw new LoggerException('log4php: File pointer is not a valid resource.');
         }
 
         ftruncate($this->fp, 0);
@@ -53,7 +53,9 @@ final class LoggerAppenderRollingFile extends LoggerAppenderFile
         }
 
         $target = $source . '.1';
-        copy($source, $target);
+        if (!copy($source, $target)) {
+            throw new LoggerException("log4php: Unable to copy file to backup: $target.");
+        }
     }
 
     private function compressFile(string $source, string $target): void
@@ -62,21 +64,21 @@ final class LoggerAppenderRollingFile extends LoggerAppenderFile
 
         $fin = fopen($source, 'rb');
         if (!$fin) {
-            throw new LoggerException("Unable to open file for reading: [$source].");
+            throw new LoggerException("log4php: Unable to open file for reading: $source.");
         }
 
         $fout = fopen($target, 'wb');
         if (!$fout) {
-            throw new LoggerException("Unable to open file for writing: [$target].");
+            throw new LoggerException("log4php: Unable to open file for writing: $target.");
         }
 
         while (!feof($fin)) {
             $chunk = fread($fin, self::COMPRESS_CHUNK_SIZE);
             if ($chunk === false) {
-                throw new LoggerException('Failed reading from file for compression.');
+                throw new LoggerException('log4php: Failed reading from file for compression.');
             }
             if (fwrite($fout, $chunk) === false) {
-                throw new LoggerException('Failed writing to compressed file.');
+                throw new LoggerException('log4php: Failed writing to compressed file.');
             }
         }
 
@@ -97,7 +99,9 @@ final class LoggerAppenderRollingFile extends LoggerAppenderFile
                 if ($this->compress) {
                     $target .= '.gz';
                 }
-                rename($source, $target);
+                if (!rename($source, $target)) {
+                    throw new LoggerException("log4php: Unable to rename file to backup: $target.");
+                }
             }
         }
     }

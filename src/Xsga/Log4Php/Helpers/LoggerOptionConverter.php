@@ -45,7 +45,7 @@ final class LoggerOptionConverter
             return false;
         }
 
-        throw new LoggerException("Given value [$value] cannot be converted to boolean.");
+        throw new LoggerException("log4php: Given value \"$value\" cannot be converted to boolean.");
     }
 
     public static function toIntegerEx(mixed $value): int
@@ -58,7 +58,8 @@ final class LoggerOptionConverter
             return (int)$value;
         }
 
-        throw new LoggerException('Given value [' . var_export($value, true) . '] cannot be converted to integer.');
+        $errorMsg = 'log4php: Given value "' . var_export($value, true) . '" cannot be converted to integer.';
+        throw new LoggerException($errorMsg);
     }
 
     public static function toPositiveIntegerEx(int|string $value): int
@@ -71,8 +72,9 @@ final class LoggerOptionConverter
             return (int)$value;
         }
 
-        $log = 'Given value [' . var_export($value, true) . '] cannot be converted to a positive integer.';
-        throw new LoggerException($log);
+        $errorMsg  = 'log4php: Given value "' . var_export($value, true) . '" ';
+        $errorMsg .= 'cannot be converted to a positive integer.';
+        throw new LoggerException($errorMsg);
     }
 
     public static function toLevelEx(LoggerLevel|int $value): LoggerLevel
@@ -84,8 +86,9 @@ final class LoggerOptionConverter
         $level = LoggerLevel::toLevel($value);
 
         if ($level === null) {
-            $log = 'Given value [' . var_export($value, true) . '] cannot be converted to a logger level.';
-            throw new LoggerException($log);
+            $errorMsg  = 'log4php: Given value "' . var_export($value, true) . '"';
+            $errorMsg .= ' cannot be converted to a LoggerLevel.';
+            throw new LoggerException($errorMsg);
         }
 
         return $level;
@@ -94,7 +97,7 @@ final class LoggerOptionConverter
     public static function toFileSizeEx(string $value): int
     {
         if (empty($value)) {
-            throw new LoggerException('Empty value cannot be converted to a file size.');
+            throw new LoggerException('log4php: Empty value cannot be converted to a file size.');
         }
 
         if (is_numeric($value)) {
@@ -118,7 +121,7 @@ final class LoggerOptionConverter
             return (int)$size;
         }
 
-        throw new LoggerException("Given value [$value] cannot be converted to a file size.");
+        throw new LoggerException("log4php: Given value \"$value\" cannot be converted to a file size.");
     }
 
     public static function toStringEx(string|object $value): string
@@ -131,7 +134,9 @@ final class LoggerOptionConverter
             return (string)$value;
         }
 
-        throw new LoggerException('Given value [' . var_export($value, true) . '] cannot be converted to string.');
+        $errorMsg  = 'log4php: Given value of type "' . get_debug_type($value) . '"';
+        $errorMsg .= ' cannot be converted to string.';
+        throw new LoggerException($errorMsg);
     }
 
     public static function substConstants(string $string): string

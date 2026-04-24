@@ -58,7 +58,7 @@ final class LoggerConfigurationAdapterXML implements LoggerConfigurationAdapter
     private function loadXML(string $url): SimpleXMLElement
     {
         if (!file_exists($url)) {
-            throw new LoggerException("File [$url] does not exist.");
+            throw new LoggerException("log4php: File \"$url\" does not exist.");
         }
 
         libxml_clear_errors();
@@ -72,16 +72,16 @@ final class LoggerConfigurationAdapterXML implements LoggerConfigurationAdapter
             }
             libxml_clear_errors();
             libxml_use_internal_errors($oldValue);
-            throw new LoggerException('Error loading configuration file: ' . trim($errorStr));
+            throw new LoggerException('log4php: Error loading configuration file: ' . trim($errorStr));
         }
 
         libxml_clear_errors();
         libxml_use_internal_errors($oldValue);
 
         if ($xml->getName() !== 'configuration') {
-            throw new LoggerException(
-                "Invalid configuration file [$url]: root element must be <configuration>, got <{$xml->getName()}>."
-            );
+            $errorMsg  = "log4php: Invalid configuration file \"$url\": ";
+            $errorMsg .= "root element must be <configuration>, got <{$xml->getName()}>.";
+            throw new LoggerException($errorMsg);
         }
 
         return $xml;
@@ -101,8 +101,8 @@ final class LoggerConfigurationAdapterXML implements LoggerConfigurationAdapter
         $name = $this->getAttributeValue($node, 'name');
 
         if ($name === null || $name === '') {
-            $log = "An <appender> node is missing the required 'name' attribute. Skipping appender definition.";
-            $this->warn($log);
+            $errorMsg = 'An <appender> node is missing the required "name" attribute. Skipping appender definition.';
+            $this->warn($errorMsg);
             return;
         }
 
@@ -142,7 +142,7 @@ final class LoggerConfigurationAdapterXML implements LoggerConfigurationAdapter
         $params = [];
         foreach ($paramsNode->param as $paramNode) {
             if (!isset($paramNode['name'])) {
-                $this->warn('A <param> node is missing the required \'name\' attribute. Skipping parameter.');
+                $this->warn('A <param> node is missing the required "name" attribute. Skipping parameter.');
                 continue;
             }
             $name  = $this->getAttributeValue($paramNode, 'name');
@@ -174,7 +174,7 @@ final class LoggerConfigurationAdapterXML implements LoggerConfigurationAdapter
         $name = $this->getAttributeValue($node, 'name');
 
         if ($name === null || $name === '') {
-            $this->warn('A <logger> node is missing the required \'name\' attribute. Skipping logger definition.');
+            $this->warn('A <logger> node is missing the required "name" attribute. Skipping logger definition.');
             return;
         }
 
@@ -189,7 +189,7 @@ final class LoggerConfigurationAdapterXML implements LoggerConfigurationAdapter
         $logger['appenders'] = $this->parseAppenderReferences($node);
 
         if (isset($this->config['loggers'][$name])) {
-            $this->warn('Duplicate logger definition [' . $name . ']. Overwriting.');
+            $this->warn("Duplicate logger definition \"$name\". Overwriting.");
         }
 
         $this->config['loggers'][$name] = $logger;
@@ -225,6 +225,6 @@ final class LoggerConfigurationAdapterXML implements LoggerConfigurationAdapter
 
     private function warn(string $message): void
     {
-        trigger_error("log4php: $message", E_USER_WARNING);
+        trigger_error("log4php: [" . get_class($this) . "]: $message", E_USER_WARNING);
     }
 }
