@@ -75,11 +75,11 @@ final class LoggerConfigurationAdapterXML implements LoggerConfigurationAdapter
         if ($xml === false) {
             $errorStr = '';
             foreach (libxml_get_errors() as $error) {
-                $errorStr .= $error->message;
+                $errorStr .= $error->message . ', ';
             }
             libxml_clear_errors();
             libxml_use_internal_errors($oldValue);
-            throw new LoggerException('log4php: Error loading configuration file: ' . trim($errorStr));
+            throw new LoggerException('log4php: Error loading configuration file: ' . trim($errorStr, ', '));
         }
 
         libxml_clear_errors();

@@ -1,4 +1,4 @@
-# Modern Log4PHP
+# Xsga Log4PHP
 
 [![PHP](https://img.shields.io/badge/PHP-8.4%2B-blue?logo=php)](https://www.php.net/)
 [![PSR-3](https://img.shields.io/badge/PSR--3-compliant-brightgreen)](https://www.php-fig.org/psr/psr-3/)
@@ -6,11 +6,26 @@
 
 > A modern, PSR-compliant successor to Apache Log4PHP (now unmaintained).
 
-Modern Log4PHP is a heavily refactored and redesigned logging library for PHP, originally inspired by Apache Log4PHP and rebuilt for the current PHP ecosystem. It targets PHP 8.4+, follows PSR-3, ships with PSR-4 autoloading, and provides a flexible logging pipeline with appenders, layouts, context interpolation, and XML or programmatic configuration.
+Xsga Log4PHP is a heavily refactored and redesigned logging library for PHP, originally inspired by Apache Log4PHP and rebuilt for the current PHP ecosystem. It targets PHP 8.4+, follows PSR-3, ships with PSR-4 autoloading, and provides a flexible logging pipeline with appenders, layouts, context interpolation, and XML or programmatic configuration.
 
 ---
 
-## Why this project exists
+## Table of Contents
+
+* [Why this project exists](#why-this-project-exists)
+* [Key Features](#key-features)
+* [What makes it different](#what-makes-it-different)
+* [Quick Start](#quick-start)
+* [Basic Configuration](#basic-configuration)
+* [Documentation](#documentation)
+* [Who should use this](#who-should-use-this)
+* [License](#license)
+* [Acknowledgements](#acknowledgements)
+
+---
+
+<a id="why-this-project-exists"></a>
+## 📌 Why this project exists
 
 Apache Log4PHP is no longer actively maintained and does not align with current PHP versions, tooling, or interoperability expectations.
 
@@ -24,21 +39,23 @@ This project exists to:
 
 ---
 
-## Key Features
+<a id="key-features"></a>
+## ✨ Key Features
 
-* PSR-3 compatible logging interface and context placeholder interpolation
-* PSR-4 autoloading support via Composer
-* PHP 8.4+ compatibility
-* XML-based and programmatic array-based configuration
-* Multiple appenders, including File, DailyFile, RollingFile, Console, and Loki
-* Multiple layouts, including Pattern, JSON, and Simple
-* Full log level support from ALL through OFF, aligned with modern logging expectations
-* Refactored architecture with cleaner separation of responsibilities
-* Improved maintainability, extensibility, and static-analysis friendliness
+* ✅ PSR-3 compatible logging interface and context placeholder interpolation
+* ✅ PSR-4 autoloading support via Composer
+* ✅ PHP 8.4+ compatibility
+* ✅ XML-based and programmatic array-based configuration
+* ✅ Multiple appenders, including File, DailyFile, RollingFile, Console, and Loki
+* ✅ Multiple layouts, including Pattern, JSON, and Simple
+* ✅ Full log level support from ALL through OFF, aligned with modern logging expectations
+* ✅ Refactored architecture with cleaner separation of responsibilities
+* ✅ Improved maintainability, extensibility, and static-analysis friendliness
 
 ---
 
-## What makes it different
+<a id="what-makes-it-different"></a>
+## 🔍 What makes it different
 
 Compared to the original Apache Log4PHP:
 
@@ -55,7 +72,8 @@ For a detailed comparison, see:
 
 ---
 
-## Quick Start
+<a id="quick-start"></a>
+## 🚀 Quick Start
 
 Install via Composer:
 
@@ -68,12 +86,15 @@ Basic usage:
 ```php
 use Xsga\Log4Php\Logger;
 
+// Load configuration from an XML file.
 Logger::configure('path/to/log4php.xml');
 
+// Obtain a named logger.
 $logger = Logger::getLogger('MyApp');
 $logger->info('Application started.');
 $logger->warning('Disk space running low.', ['threshold' => '90%']);
 
+// Or use the root logger.
 $root = Logger::getRootLogger();
 $root->debug('Root logger is ready.');
 ```
@@ -82,7 +103,8 @@ If you prefer to configure the library without XML, you can also pass a PHP arra
 
 ---
 
-## Basic Configuration
+<a id="basic-configuration"></a>
+## ⚙️ Basic Configuration
 
 Configuration can be defined using XML or arrays.
 
@@ -91,6 +113,8 @@ XML example:
 ```xml
 <?xml version="1.0" encoding="UTF-8" ?>
 <configuration xmlns="http://logging.apache.org/log4php/" threshold="all">
+
+  <!-- File appender with pattern layout: one line per event -->
   <appender name="default" class="LoggerAppenderFile">
     <param name="file" value="logs/app.log" />
     <layout class="LoggerLayoutPattern">
@@ -131,15 +155,18 @@ Logger::configure([
 
 ---
 
-## Documentation
+<a id="documentation"></a>
+## 📚 Documentation
 
 Project documentation is currently centered on the repository itself:
 
 * Differences from Apache Log4PHP: [doc/differences-from-apache-log4php.md](doc/differences-from-apache-log4php.md)
+* Project documentation: [doc/DOCUMENTATION.md](doc/DOCUMENTATION.md)
 
 ---
 
-## Who should use this
+<a id="who-should-use-this"></a>
+## 👥 Who should use this
 
 This project is a good fit if you:
 
@@ -151,7 +178,8 @@ This project is a good fit if you:
 
 ---
 
-## License
+<a id="license"></a>
+## 📄 License
 
 This project is based on Apache Log4PHP and remains licensed under the Apache 2.0 License. See [LICENSE](LICENSE) for details.
 
@@ -159,7 +187,8 @@ It includes substantial refactoring, modernization, and new implementation work 
 
 ---
 
-## Acknowledgements
+<a id="acknowledgements"></a>
+## 🙌 Acknowledgements
 
 * Apache Log4PHP
 * Apache Software Foundation

@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Xsga Log4PHP | Modern Logging for High-Performance PHP</title>
+  <meta name="description" content="Xsga Log4PHP is a modern PSR-3 compliant logging library for PHP 8.4+, with JSON support, Loki integration, and production-ready performance." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #07070f;
+      --bg2: #0f0f1a;
+      --bg3: #13131f;
+      --bg3h: #1a1a2e;
+      --bdr: rgba(99, 102, 241, 0.18);
+      --bdrh: rgba(99, 102, 241, 0.45);
+      --p: #6366f1;
+      --ph: #818cf8;
+      --sec: #22d3ee;
+      --acc: #a78bfa;
+      --grn: #34d399;
+      --txt: #f1f5f9;
+      --muted: #94a3b8;
+      --dim: #64748b;
+      --ghero: linear-gradient(135deg, #1e1b4b 0%, #0f172a 40%, #07070f 100%);
+      --gp: linear-gradient(135deg, #6366f1, #a78bfa);
+      --sglow: 0 0 40px rgba(99, 102, 241, 0.25);
+      --scard: 0 4px 24px rgba(0, 0, 0, 0.45);
+      --r: 16px;
+      --xl: 24px;
+      --tr: .25s cubic-bezier(.4, 0, .2, 1);
+      color-scheme: dark;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: "Manrope", "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--txt);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+    .section { padding: 96px 0; }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(99, 102, 241, 0.12);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      color: var(--ph);
+      font-size: .78rem;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding: 6px 16px;
+      border-radius: 999px;
+      margin-bottom: 24px;
+    }
+
+    .section-title {
+      font-size: clamp(1.9rem, 3.5vw, 2.7rem);
+      font-weight: 800;
+      letter-spacing: -.02em;
+      line-height: 1.15;
+      margin-bottom: 16px;
+    }
+
+    .section-subtitle {
+      font-size: 1.08rem;
+      color: var(--muted);
+      max-width: 640px;
+      line-height: 1.72;
+    }
+
+    .gt {
+      background: var(--gp);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 16px 0;
+      background: rgba(7, 7, 15, 0.82);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(99, 102, 241, 0.1);
+      transition: background var(--tr);
+    }
+
+    .nav-inner { display: flex; align-items: center; justify-content: space-between; }
+
+    .logo { display: flex; align-items: center; gap: 10px; font-size: 1.2rem; font-weight: 800; letter-spacing: -.02em; }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--gp);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: .8rem;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    .nav-links { display: flex; align-items: center; gap: 30px; list-style: none; }
+
+    .nav-links a { font-size: .92rem; font-weight: 500; color: var(--muted); transition: color var(--tr); }
+
+    .nav-links a:hover { color: var(--txt); }
+
+    .nav-cta { display: flex; align-items: center; gap: 12px; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 24px;
+      border-radius: 10px;
+      font-size: .92rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--tr);
+      border: none;
+      white-space: nowrap;
+    }
+
+    .btn-p { background: var(--gp); color: #fff; box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4); }
+    .btn-p:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(99, 102, 241, 0.55); }
+
+    .btn-o { background: transparent; color: var(--txt); border: 1px solid var(--bdr); }
+    .btn-o:hover { border-color: var(--p); color: var(--ph); background: rgba(99, 102, 241, 0.07); transform: translateY(-2px); }
+
+    .btn-g { background: rgba(255, 255, 255, 0.06); color: var(--txt); border: 1px solid rgba(255, 255, 255, 0.08); }
+    .btn-g:hover { background: rgba(255, 255, 255, 0.1); transform: translateY(-2px); }
+
+    .btn-lg { padding: 14px 30px; font-size: 1rem; border-radius: 12px; }
+
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      background: var(--ghero);
+      position: relative;
+      overflow: hidden;
+      padding-top: 80px;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(99, 102, 241, 0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(99, 102, 241, 0.06) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+      -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+    }
+
+    .orb { position: absolute; border-radius: 50%; filter: blur(80px); pointer-events: none; }
+
+    .orb1 { width: 600px; height: 600px; background: rgba(99, 102, 241, 0.15); top: -200px; right: -100px; animation: float 8s ease-in-out infinite; }
+    .orb2 { width: 400px; height: 400px; background: rgba(34, 211, 238, 0.1); bottom: -100px; left: -100px; animation: float 10s ease-in-out infinite reverse; }
+    .orb3 { width: 300px; height: 300px; background: rgba(167, 139, 250, 0.12); top: 40%; left: 40%; animation: float 12s ease-in-out infinite 2s; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-30px) scale(1.05); }
+    }
+
+    .hero-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+      padding: 48px 0;
+    }
+
+    .hero-tag {
+      font-size: .82rem;
+      font-weight: 600;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--sec);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tag-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--sec);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: .5; transform: scale(1.4); }
+    }
+
+    .hero-title {
+      font-size: clamp(2.2rem, 4.8vw, 3.7rem);
+      font-weight: 900;
+      letter-spacing: -.03em;
+      line-height: 1.08;
+      margin-bottom: 22px;
+    }
+
+    .hero-desc {
+      font-size: 1.1rem;
+      color: var(--muted);
+      line-height: 1.75;
+      margin-bottom: 38px;
+      max-width: 540px;
+    }
+
+    .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 52px; }
+
+    .hero-stats { display: flex; gap: 36px; flex-wrap: wrap; }
+
+    .stat-val {
+      font-size: 1.52rem;
+      font-weight: 800;
+      letter-spacing: -.02em;
+      background: var(--gp);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stat-lbl { font-size: .82rem; color: var(--dim); margin-top: 2px; }
+
+    .cw {
+      background: #0d0d1a;
+      border: 1px solid var(--bdr);
+      border-radius: var(--xl);
+      overflow: hidden;
+      box-shadow: var(--sglow), var(--scard);
+      animation: float 10s ease-in-out infinite 1s;
+    }
+
+    .cw-hdr {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 20px;
+      background: rgba(255, 255, 255, 0.03);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .cw-dots { display: flex; gap: 7px; }
+    .cw-dot { width: 12px; height: 12px; border-radius: 50%; }
+    .d-r { background: #ff5f57; }
+    .d-y { background: #febc2e; }
+    .d-g { background: #28c840; }
+
+    .cw-title {
+      font-size: .8rem;
+      color: var(--dim);
+      margin-left: 8px;
+      font-family: "JetBrains Mono", monospace;
+    }
+
+    .cw-body {
+      padding: 24px 28px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: .82rem;
+      line-height: 1.9;
+      overflow-x: auto;
+    }
+
+    .cw-body pre { white-space: pre; }
+
+    .kw { color: #c792ea; }
+    .cl { color: #ffcb6b; }
+    .fn { color: #82aaff; }
+    .st { color: #c3e88d; }
+    .nu { color: #f78c6c; }
+    .va { color: #eeffff; }
+    .pr { color: #89ddff; }
+    .cm { color: #546e7a; font-style: italic; }
+    .pu { color: #89ddff; }
+    .ty { color: #ffcb6b; }
+    .at { color: #c3e88d; }
+
+    .tbar {
+      padding: 32px 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      background: rgba(255, 255, 255, 0.015);
+    }
+
+    .tbar-inner { display: flex; align-items: center; gap: 42px; flex-wrap: wrap; justify-content: center; }
+    .tbar-lbl { font-size: .8rem; color: var(--dim); text-transform: uppercase; letter-spacing: .1em; white-space: nowrap; }
+    .tbar-tags { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; justify-content: center; }
+
+    .tlogo {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--dim);
+      font-size: .85rem;
+      font-weight: 600;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 999px;
+      padding: 6px 12px;
+      transition: all var(--tr);
+    }
+
+    .tlogo:hover { color: var(--muted); border-color: var(--bdrh); }
+
+    .fg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 56px; }
+
+    .fc {
+      background: var(--bg3);
+      border: 1px solid var(--bdr);
+      border-radius: var(--r);
+      padding: 32px;
+      transition: all var(--tr);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .fc::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: var(--gp);
+      opacity: 0;
+      transition: opacity var(--tr);
+    }
+
+    .fc:hover {
+      border-color: var(--bdrh);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(99, 102, 241, 0.2);
+    }
+
+    .fc:hover::before { opacity: .04; }
+
+    .fc-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 1;
+      font-size: .8rem;
+      font-weight: 800;
+    }
+
+    .ii { background: rgba(99, 102, 241, .15); color: #818cf8; }
+    .ic { background: rgba(34, 211, 238, .12); color: #22d3ee; }
+    .ip { background: rgba(167, 139, 250, .12); color: #a78bfa; }
+    .ig { background: rgba(52, 211, 153, .12); color: #34d399; }
+    .ia { background: rgba(251, 191, 36, .12); color: #fbbf24; }
+    .ir { background: rgba(244, 63, 94, .12); color: #fb7185; }
+
+    .fc-title { font-size: 1.08rem; font-weight: 700; margin-bottom: 10px; position: relative; z-index: 1; }
+    .fc-desc { font-size: .92rem; color: var(--muted); line-height: 1.68; position: relative; z-index: 1; }
+
+    .cs { background: var(--bg2); position: relative; overflow: hidden; }
+
+    .cs::before {
+      content: "";
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(99, 102, 241, .08) 0%, transparent 70%);
+      top: -200px;
+      right: -200px;
+      pointer-events: none;
+    }
+
+    .cs-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+
+    .cfl { list-style: none; margin-top: 32px; display: flex; flex-direction: column; gap: 14px; }
+    .cfl li { display: flex; align-items: flex-start; gap: 12px; font-size: .95rem; color: var(--muted); }
+
+    .chk {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: rgba(52, 211, 153, .12);
+      color: var(--grn);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 2px;
+      font-size: .76rem;
+      font-weight: 800;
+    }
+
+    .compare-wrap {
+      margin-top: 56px;
+      border: 1px solid var(--bdr);
+      border-radius: var(--r);
+      overflow: hidden;
+      background: var(--bg3);
+    }
+
+    .ctable {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .ctable th {
+      text-align: left;
+      padding: 12px 20px;
+      font-size: .82rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--dim);
+      background: rgba(255, 255, 255, .03);
+      border-bottom: 1px solid var(--bdr);
+    }
+
+    .ctable td {
+      padding: 14px 20px;
+      font-size: .9rem;
+      border-bottom: 1px solid rgba(255, 255, 255, .04);
+    }
+
+    .ctable tr:last-child td { border-bottom: none; }
+    .ctable tr:hover td { background: rgba(99, 102, 241, .04); }
+
+    .cy { color: var(--grn); font-weight: 700; }
+    .cx { color: #fbbf24; }
+
+    .ig-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 56px; }
+
+    .ig-card {
+      background: var(--bg3);
+      border: 1px solid var(--bdr);
+      border-radius: var(--r);
+      padding: 28px;
+      transition: all var(--tr);
+    }
+
+    .ig-card:hover {
+      border-color: var(--bdrh);
+      background: var(--bg3h);
+      transform: translateY(-2px);
+      box-shadow: var(--scard);
+    }
+
+    .ig-title { font-size: 1rem; font-weight: 700; margin-bottom: 9px; }
+    .ig-desc { font-size: .9rem; color: var(--muted); line-height: 1.65; margin-bottom: 14px; }
+
+    .badge-list { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    .badge-chip {
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.11);
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--muted);
+      padding: 5px 12px;
+      font-size: .8rem;
+      font-weight: 600;
+      transition: all var(--tr);
+    }
+
+    .badge-chip:hover { border-color: var(--bdrh); color: var(--txt); }
+
+    .docs-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 56px; }
+
+    .doc-step {
+      background: var(--bg3);
+      border: 1px solid var(--bdr);
+      border-radius: var(--r);
+      padding: 22px;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 14px;
+      align-items: flex-start;
+      transition: all var(--tr);
+    }
+
+    .doc-step:hover {
+      border-color: var(--bdrh);
+      transform: translateY(-2px);
+      box-shadow: var(--scard);
+    }
+
+    .step-no {
+      width: 32px;
+      height: 32px;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .8rem;
+      font-weight: 800;
+      color: #fff;
+      background: var(--gp);
+      flex-shrink: 0;
+    }
+
+    .doc-step h3 { font-size: 1rem; margin-bottom: 4px; }
+    .doc-step p { color: var(--muted); font-size: .9rem; }
+
+    .doc-step code {
+      font-family: "JetBrains Mono", monospace;
+      font-size: .8rem;
+      color: #c3e88d;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 7px;
+      padding: 0 .35rem;
+    }
+
+    .cta {
+      background: var(--bg2);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta::before {
+      content: "";
+      position: absolute;
+      width: 800px;
+      height: 400px;
+      background: radial-gradient(ellipse, rgba(99, 102, 241, .12) 0%, transparent 70%);
+      top: -100px;
+      left: 50%;
+      transform: translateX(-50%);
+      pointer-events: none;
+    }
+
+    .cta-inner { position: relative; z-index: 1; max-width: 760px; margin: 0 auto; }
+
+    .cta-title {
+      font-size: clamp(1.9rem, 4vw, 3rem);
+      font-weight: 900;
+      letter-spacing: -.03em;
+      line-height: 1.15;
+      margin-bottom: 20px;
+    }
+
+    .cta-desc {
+      font-size: 1.05rem;
+      color: var(--muted);
+      line-height: 1.7;
+      margin-bottom: 34px;
+    }
+
+    .cta-acts { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+    .ibox {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(0, 0, 0, .4);
+      border: 1px solid var(--bdr);
+      border-radius: 10px;
+      padding: 12px 20px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: .9rem;
+      color: var(--grn);
+      margin-top: 30px;
+      cursor: default;
+      transition: border-color var(--tr);
+    }
+
+    .ibox:hover { border-color: var(--bdrh); }
+    .iprompt { color: var(--dim); user-select: none; }
+
+    .footer {
+      background: #050508;
+      border-top: 1px solid rgba(255, 255, 255, .05);
+      padding: 56px 0 30px;
+    }
+
+    .footer-g {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 42px;
+      margin-bottom: 44px;
+    }
+
+    .footer-desc {
+      font-size: .88rem;
+      color: var(--dim);
+      line-height: 1.7;
+      margin: 14px 0 20px;
+      max-width: 340px;
+    }
+
+    .ftitle {
+      font-size: .82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    .flinks { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .flinks a { font-size: .88rem; color: var(--dim); transition: color var(--tr); }
+    .flinks a:hover { color: var(--muted); }
+
+    .fbot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255, 255, 255, .05);
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .fcopy { font-size: .82rem; color: var(--dim); }
+
+    .fbot-links { display: flex; gap: 24px; }
+    .fbot-links a { font-size: .82rem; color: var(--dim); transition: color var(--tr); }
+    .fbot-links a:hover { color: var(--muted); }
+
+    .rv { opacity: 0; transform: translateY(24px); transition: opacity .6s ease, transform .6s ease; }
+    .rv.vis { opacity: 1; transform: translateY(0); }
+
+    .d1 { transition-delay: .1s; }
+    .d2 { transition-delay: .2s; }
+    .d3 { transition-delay: .3s; }
+    .d4 { transition-delay: .4s; }
+    .d5 { transition-delay: .5s; }
+    .d6 { transition-delay: .6s; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation: none !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+      }
+    }
+
+    @media (max-width: 1024px) {
+      .fg { grid-template-columns: repeat(2, 1fr); }
+      .footer-g { grid-template-columns: 1fr 1fr; gap: 32px; }
+    }
+
+    @media (max-width: 768px) {
+      .section { padding: 64px 0; }
+      .nav-links, .nav-cta { display: none; }
+      .hero-inner { grid-template-columns: 1fr; gap: 40px; padding: 32px 0 80px; }
+      .cs-inner, .ig-grid, .docs-grid { grid-template-columns: 1fr; gap: 34px; }
+      .fg { grid-template-columns: 1fr; }
+      .footer-g { grid-template-columns: 1fr; gap: 28px; }
+      .fbot { flex-direction: column; text-align: center; }
+    }
+
+    @media (max-width: 480px) {
+      .hero-actions, .cta-acts { flex-direction: column; align-items: stretch; }
+      .btn-lg { width: 100%; }
+      .hero-title { font-size: 2rem; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="nav" role="navigation" aria-label="Main navigation">
+  <div class="container">
+    <div class="nav-inner">
+      <a href="#top" class="logo">
+        <div class="logo-icon" aria-hidden="true">XL</div>
+        <span>Xsga <span class="gt">Log4PHP</span></span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#differences">Differences</a></li>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#code">Code</a></li>
+        <li><a href="#why">Why</a></li>
+        <li><a href="#docs">Docs</a></li>
+      </ul>
+      <div class="nav-cta">
+        <a href="https://github.com/xsga/log4php" target="_blank" rel="noopener noreferrer" class="btn btn-g">GitHub</a>
+        <a href="#docs" class="btn btn-p">Get Started</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<section class="hero" id="top">
+  <div class="orb orb1" aria-hidden="true"></div>
+  <div class="orb orb2" aria-hidden="true"></div>
+  <div class="orb orb3" aria-hidden="true"></div>
+
+  <div class="container">
+    <div class="hero-inner">
+      <div>
+        <p class="hero-tag"><span class="tag-dot" aria-hidden="true"></span>PHP 8.4+ · PSR-3 · Microservices</p>
+        <h1 class="hero-title">Structured logging for PHP<br /><span class="gt">without the complexity.</span></h1>
+        <p class="hero-desc">
+          Xsga Log4PHP is a modern logging library inspired by Apache Log4PHP and rebuilt for performance,
+          scalability, and clean developer workflows. Configure quickly, emit structured events, and integrate
+          with production observability stacks.
+        </p>
+        <div class="hero-actions">
+          <a href="#docs" class="btn btn-p btn-lg">Get Started</a>
+          <a href="../README.md" class="btn btn-o btn-lg">View Documentation</a>
+        </div>
+        <div class="hero-stats">
+          <div><div class="stat-val">8.4+</div><div class="stat-lbl">PHP requirement</div></div>
+          <div><div class="stat-val">PSR-3</div><div class="stat-lbl">Compliant interface</div></div>
+          <div><div class="stat-val">JSON</div><div class="stat-lbl">Structured layout</div></div>
+          <div><div class="stat-val">Loki</div><div class="stat-lbl">Native appender</div></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="cw">
+          <div class="cw-hdr">
+            <div class="cw-dots" aria-hidden="true"><span class="cw-dot d-r"></span><span class="cw-dot d-y"></span><span class="cw-dot d-g"></span></div>
+            <span class="cw-title">src/bootstrap/logger.php</span>
+          </div>
+          <div class="cw-body"><pre><code><span class="cm">// Modern PSR-3 logging in a few lines</span>
+<span class="kw">use</span> <span class="cl">Xsga\Log4Php\Logger</span><span class="pu">;</span>
+
+Logger<span class="pu">::</span><span class="fn">configure</span><span class="pu">(</span><span class="st">'path/to/log4php.xml'</span><span class="pu">);</span>
+
+<span class="va">$logger</span> <span class="pu">=</span> Logger<span class="pu">::</span><span class="fn">getLogger</span><span class="pu">(</span><span class="st">'CheckoutService'</span><span class="pu">);</span>
+
+<span class="va">$logger</span><span class="pu">-&gt;</span><span class="fn">info</span><span class="pu">(</span><span class="st">'Application started.'</span><span class="pu">);</span>
+<span class="va">$logger</span><span class="pu">-&gt;</span><span class="fn">warning</span><span class="pu">(</span><span class="st">'Disk space running low.'</span><span class="pu">,</span>
+  <span class="pu">[</span><span class="st">'threshold'</span> <span class="pu">=&gt;</span> <span class="st">'90%'</span><span class="pu">]);</span>
+<span class="va">$logger</span><span class="pu">-&gt;</span><span class="fn">error</span><span class="pu">(</span><span class="st">'Unhandled exception.'</span><span class="pu">,</span>
+  <span class="pu">[</span><span class="st">'exception'</span> <span class="pu">=&gt;</span> <span class="va">$e</span><span class="pu">-&gt;</span><span class="pr">getMessage</span><span class="pu">()]);</span></code></pre></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="tbar" role="complementary">
+  <div class="container">
+    <div class="tbar-inner">
+      <span class="tbar-lbl">Compatible with</span>
+      <div class="tbar-tags">
+        <span class="tlogo">PSR-3 LoggerInterface</span>
+        <span class="tlogo">Grafana Loki</span>
+        <span class="tlogo">Elastic Pipelines</span>
+        <span class="tlogo">Datadog</span>
+        <span class="tlogo">OpenTelemetry Collectors</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="section" id="differences">
+  <div class="container">
+    <div class="rv">
+      <div class="badge">Differences from Apache</div>
+      <h2 class="section-title">A true modern fork,<br /><span class="gt">not just a version bump</span></h2>
+      <p class="section-subtitle">Xsga Log4PHP modernizes architecture, typing, tooling, and observability readiness for current production systems.</p>
+    </div>
+
+    <div class="compare-wrap rv d1">
+      <table class="ctable" aria-label="Comparison with Apache Log4PHP">
+        <thead>
+          <tr>
+            <th>Area</th>
+            <th>Apache Log4PHP</th>
+            <th>Xsga Log4PHP</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>PHP Version</td>
+            <td class="cx">&gt;= 5.2.7</td>
+            <td class="cy">PHP 8.4+</td>
+          </tr>
+          <tr>
+            <td>Codebase</td>
+            <td>Legacy patterns</td>
+            <td class="cy">Strict types, namespaces, PSR-4</td>
+          </tr>
+          <tr>
+            <td>Code Quality</td>
+            <td>Not enforced</td>
+            <td class="cy">PSR-12 + Psalm 6 + lint tooling</td>
+          </tr>
+          <tr>
+            <td>PSR-3</td>
+            <td>No</td>
+            <td class="cy">Full LoggerInterface support</td>
+          </tr>
+          <tr>
+            <td>Structured Logging</td>
+            <td>Limited</td>
+            <td class="cy">LoggerLayoutJson + context-rich logs</td>
+          </tr>
+          <tr>
+            <td>Appender Strategy</td>
+            <td>Broad legacy list</td>
+            <td class="cy">Curated modern appenders + Loki</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="features" style="background:var(--bg2)">
+  <div class="container">
+    <div class="rv">
+      <div class="badge">Core Features</div>
+      <h2 class="section-title">Built for high-throughput services<br /><span class="gt">and clean developer workflows</span></h2>
+      <p class="section-subtitle">Fast enough for production traffic, simple enough for day-one adoption.</p>
+    </div>
+
+    <div class="fg">
+      <article class="fc rv d1"><div class="fc-icon ii">HP</div><h3 class="fc-title">High Performance, Low Overhead</h3><p class="fc-desc">Efficient logging internals focused on minimizing runtime cost in API and microservice workloads.</p></article>
+      <article class="fc rv d2"><div class="fc-icon ic">JS</div><h3 class="fc-title">Structured Logging (JSON)</h3><p class="fc-desc">Emit ingestion-ready JSON events for centralized search, analytics, and cloud observability pipelines.</p></article>
+      <article class="fc rv d3"><div class="fc-icon ip">LV</div><h3 class="fc-title">Complete Log Levels</h3><p class="fc-desc">Supports ALL, TRACE, DEBUG, INFO, NOTICE, WARNING, ERROR, CRITICAL, ALERT, EMERGENCY, and OFF.</p></article>
+      <article class="fc rv d4"><div class="fc-icon ig">AP</div><h3 class="fc-title">Modern Appenders</h3><p class="fc-desc">File, DailyFile, RollingFile, Console, and native Loki appender for production-grade pipelines.</p></article>
+      <article class="fc rv d5"><div class="fc-icon ia">CF</div><h3 class="fc-title">Flexible Configuration</h3><p class="fc-desc">Configure via XML or PHP arrays with thresholds, layouts, and root logger controls.</p></article>
+      <article class="fc rv d6"><div class="fc-icon ir">DX</div><h3 class="fc-title">Easy Integration</h3><p class="fc-desc">Composer-first setup and PSR-3 compatibility make integration straightforward in existing codebases.</p></article>
+    </div>
+  </div>
+</section>
+
+<section class="section cs" id="code">
+  <div class="container">
+    <div class="cs-inner">
+      <div class="rv">
+        <div class="cw">
+          <div class="cw-hdr">
+            <div class="cw-dots" aria-hidden="true"><span class="cw-dot d-r"></span><span class="cw-dot d-y"></span><span class="cw-dot d-g"></span></div>
+            <span class="cw-title">log4php.xml</span>
+          </div>
+          <div class="cw-body"><pre><code><span class="pu">&lt;</span><span class="kw">configuration</span> <span class="at">threshold</span><span class="pu">=</span><span class="st">"all"</span><span class="pu">&gt;</span>
+  <span class="pu">&lt;</span><span class="kw">appender</span> <span class="at">name</span><span class="pu">=</span><span class="st">"json"</span> <span class="at">class</span><span class="pu">=</span><span class="st">"LoggerAppenderRollingFile"</span><span class="pu">&gt;</span>
+    <span class="pu">&lt;</span><span class="kw">param</span> <span class="at">name</span><span class="pu">=</span><span class="st">"file"</span> <span class="at">value</span><span class="pu">=</span><span class="st">"logs/app.json.log"</span> <span class="pu">/&gt;</span>
+    <span class="pu">&lt;</span><span class="kw">layout</span> <span class="at">class</span><span class="pu">=</span><span class="st">"LoggerLayoutJson"</span> <span class="pu">/&gt;</span>
+  <span class="pu">&lt;/</span><span class="kw">appender</span><span class="pu">&gt;</span>
+<span class="pu">&lt;/</span><span class="kw">configuration</span><span class="pu">&gt;</span></code></pre></div>
+        </div>
+      </div>
+
+      <div class="rv d2">
+        <div class="badge">Code Example</div>
+        <h2 class="section-title">Initialize once,<br /><span class="gt">log everywhere</span></h2>
+        <p class="section-subtitle">From monoliths to microservices, keep logging consistent with minimal setup.</p>
+        <ul class="cfl">
+          <li><span class="chk">✓</span><span>Load XML configuration with <strong>Logger::configure()</strong>.</span></li>
+          <li><span class="chk">✓</span><span>Use named loggers via <strong>Logger::getLogger()</strong>.</span></li>
+          <li><span class="chk">✓</span><span>Emit PSR-3 standard levels and rich context payloads.</span></li>
+          <li><span class="chk">✓</span><span>Switch layouts and appenders without touching business code.</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="why">
+  <div class="container">
+    <div class="rv">
+      <div class="badge">Why This Library</div>
+      <h2 class="section-title">Performance-focused simplicity<br /><span class="gt">for real production teams</span></h2>
+      <p class="section-subtitle">Compared with heavy observability SDKs and legacy libraries, Xsga Log4PHP provides a balanced, pragmatic approach.</p>
+    </div>
+
+    <div class="ig-grid">
+      <article class="ig-card rv d1">
+        <h3 class="ig-title">Legacy Logging Libraries</h3>
+        <p class="ig-desc">Often tied to older PHP versions, less strict tooling, and weaker support for modern structured observability workflows.</p>
+      </article>
+      <article class="ig-card rv d2">
+        <h3 class="ig-title">Large Observability SDKs</h3>
+        <p class="ig-desc">Very powerful, but integration complexity and runtime footprint can be unnecessary for teams focused on strong logging first.</p>
+      </article>
+      <article class="ig-card rv d3">
+        <h3 class="ig-title">Xsga Log4PHP</h3>
+        <p class="ig-desc">Modern PHP 8.4 foundation, PSR-3 compliance, curated appender set, and a clean integration path for high-throughput apps.</p>
+      </article>
+      <article class="ig-card rv d4">
+        <h3 class="ig-title">Operational Clarity</h3>
+        <p class="ig-desc">Structured, contextual logs that remain easy to query, route, and correlate across distributed services.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="integrations" style="background:var(--bg2)">
+  <div class="container">
+    <div class="rv">
+      <div class="badge">Integrations</div>
+      <h2 class="section-title">Polyglot ecosystem friendly<br /><span class="gt">with cloud-ready output</span></h2>
+      <p class="section-subtitle">Built for PHP, designed to integrate with broader stacks and modern observability platforms.</p>
+    </div>
+
+    <div class="ig-grid">
+      <article class="ig-card rv d1">
+        <h3 class="ig-title">Platform Compatibility</h3>
+        <p class="ig-desc">Unify logging standards across teams running Node.js, Python, Java, Go, .NET, and PHP services.</p>
+        <div class="badge-list">
+          <span class="badge-chip">Node.js</span>
+          <span class="badge-chip">Python</span>
+          <span class="badge-chip">Java</span>
+          <span class="badge-chip">Go</span>
+          <span class="badge-chip">.NET</span>
+          <span class="badge-chip">PHP</span>
+        </div>
+      </article>
+      <article class="ig-card rv d2">
+        <h3 class="ig-title">Cloud / Observability Support</h3>
+        <p class="ig-desc">Use Loki directly and integrate seamlessly with Elastic, Datadog, OpenTelemetry pipelines, and SIEM tooling.</p>
+        <div class="badge-list">
+          <span class="badge-chip">Grafana Loki</span>
+          <span class="badge-chip">Elastic</span>
+          <span class="badge-chip">Datadog</span>
+          <span class="badge-chip">OpenTelemetry</span>
+          <span class="badge-chip">Cloud Logging</span>
+          <span class="badge-chip">SIEM</span>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="docs">
+  <div class="container">
+    <div class="rv">
+      <div class="badge">Documentation Preview</div>
+      <h2 class="section-title">From install to production<br /><span class="gt">in four quick steps</span></h2>
+      <p class="section-subtitle">A straightforward setup flow designed for fast adoption in teams and services.</p>
+    </div>
+
+    <div class="docs-grid">
+      <article class="doc-step rv d1"><span class="step-no">1</span><div><h3>Install</h3><p>Run <code>composer require xsga/log4php</code>.</p></div></article>
+      <article class="doc-step rv d2"><span class="step-no">2</span><div><h3>Configure</h3><p>Create <code>log4php.xml</code> with appenders, layouts, and thresholds.</p></div></article>
+      <article class="doc-step rv d3"><span class="step-no">3</span><div><h3>Initialize</h3><p>Call <code>Logger::configure()</code> and obtain named loggers.</p></div></article>
+      <article class="doc-step rv d4"><span class="step-no">4</span><div><h3>Ship Logs</h3><p>Route events to files, console, rolling storage, or Loki.</p></div></article>
+    </div>
+  </div>
+</section>
+
+<section class="section cta" id="cta">
+  <div class="container">
+    <div class="cta-inner rv">
+      <h2 class="cta-title">Bring modern logging to your PHP stack<br /><span class="gt">without adding friction.</span></h2>
+      <p class="cta-desc">Fast setup, production-grade capabilities, and structured output built for high-performance applications and microservices.</p>
+      <div class="cta-acts">
+        <a href="../README.md" class="btn btn-p btn-lg">Get Started</a>
+        <a href="https://github.com/xsga/log4php" target="_blank" rel="noopener noreferrer" class="btn btn-o btn-lg">View on GitHub</a>
+      </div>
+      <div class="ibox"><span class="iprompt">$</span> composer require xsga/log4php</div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-g">
+      <div>
+        <a href="#top" class="logo">
+          <div class="logo-icon" aria-hidden="true">XL</div>
+          <span>Xsga <span class="gt">Log4PHP</span></span>
+        </a>
+        <p class="footer-desc">A modern, PSR-3 compliant logging library for PHP 8.4+, designed for fast integration and production observability.</p>
+      </div>
+      <div>
+        <h3 class="ftitle">Project</h3>
+        <ul class="flinks">
+          <li><a href="#features">Features</a></li>
+          <li><a href="#differences">Differences</a></li>
+          <li><a href="#code">Code Example</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="ftitle">Resources</h3>
+        <ul class="flinks">
+          <li><a href="../README.md">Documentation</a></li>
+          <li><a href="https://github.com/xsga/log4php" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+          <li><a href="https://github.com/xsga/log4php/discussions" target="_blank" rel="noopener noreferrer">Community</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="ftitle">Ecosystem</h3>
+        <ul class="flinks">
+          <li><a href="#integrations">Integrations</a></li>
+          <li><a href="#docs">Quick Start</a></li>
+          <li><a href="#why">Why Xsga Log4PHP</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="fbot">
+      <div class="fcopy">© 2026 Xsga Log4PHP. Built for developers.</div>
+      <div class="fbot-links">
+        <a href="https://github.com/xsga/log4php" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="../README.md">Docs</a>
+        <a href="https://github.com/xsga/log4php/discussions" target="_blank" rel="noopener noreferrer">Community</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("vis");
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.14 }
+  );
+
+  document.querySelectorAll(".rv").forEach((node) => observer.observe(node));
+</script>
+
+</body>
+</html>
