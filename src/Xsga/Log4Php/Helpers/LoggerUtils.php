@@ -15,42 +15,17 @@ final class LoggerUtils
         $name = str_replace('.', '\\', $name);
         $name = trim($name, ' \\');
 
-        $currentLength = strlen($name);
-        if ($currentLength <= $length) {
-            return $name;
-        }
-
         $fragments = explode('\\', $name);
+        $count     = count($fragments);
 
         if ($length === 0) {
             return array_pop($fragments);
         }
 
-        $count = count($fragments);
-        if ($count === 1) {
+        if ($length >= $count) {
             return $name;
         }
 
-        foreach ($fragments as $key => &$fragment) {
-            if ($key === ($count - 1)) {
-                break;
-            }
-
-            $fragLen = strlen($fragment);
-            if ($fragLen <= 1) {
-                continue;
-            }
-
-            $fragment      = substr($fragment, 0, 1);
-            $currentLength = ($currentLength - $fragLen + 1);
-
-            if ($currentLength <= $length) {
-                break;
-            }
-        }
-
-        unset($fragment);
-
-        return implode('\\', $fragments);
+        return implode('\\', array_slice($fragments, $count - $length));
     }
 }

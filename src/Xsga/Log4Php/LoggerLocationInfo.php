@@ -73,22 +73,15 @@ final class LoggerLocationInfo
     {
         $trace   = [];
         $prevHop = null;
+        $namespace = strtolower(LoggerNamespaces::LOG4PHP_NAMESPACE);
 
-        $hop = array_pop($backTrace);
+        $includeFunctions = ['include', 'include_once', 'require', 'require_once'];
 
-        while ($hop !== null) {
+        while (($hop = array_pop($backTrace)) !== null) {
             if (isset($hop['class'])) {
-                $classNameRaw = $hop['class'];
-                $parentClass = get_parent_class($classNameRaw);
-                $className = strtolower(
-                    str_replace(strtolower(LoggerNamespaces::LOG4PHP_NAMESPACE), '', strtolower($classNameRaw))
-                );
+                $className = strtolower(str_replace($namespace, '', strtolower($hop['class'])));
 
-                if (
-                    !empty($className) && (
-                    $className === 'logger' ||
-                    ($parentClass !== false && strtolower($parentClass) === 'logger'))
-                ) {
+                if ($className === 'logger') {
                     $trace['line'] = isset($hop['line']) ? (string)$hop['line'] : '0';
                     $trace['file'] = $hop['file'] ?? '';
                     break;
@@ -96,27 +89,16 @@ final class LoggerLocationInfo
             }
 
             $prevHop = $hop;
-            $hop     = array_pop($backTrace);
         }
 
-        $trace['class'] = match (true) {
-            isset($prevHop['class']) => $prevHop['class'],
-            isset($prevHop['function']) => $prevHop['function'],
-            default => 'main'
-        };
+        $trace['class'] = $prevHop['class'] ?? $prevHop['function'] ?? 'main';
 
-        if (
-            isset($prevHop['function']) &&
-            $prevHop['function'] !== 'include' &&
-            $prevHop['function'] !== 'include_once' &&
-            $prevHop['function'] !== 'require' &&
-            $prevHop['function'] !== 'require_once'
-        ) {
-            $trace['function'] = $prevHop['function'];
-            return $trace;
+        $function = $prevHop['function'] ?? null;
+        if ($function === null || in_array($function, $includeFunctions, true)) {
+            $function = 'main';
         }
 
-        $trace['function'] = 'main';
+        $trace['function'] = $function;
 
         return $trace;
     }

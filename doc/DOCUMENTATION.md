@@ -518,7 +518,7 @@ Excellent for centralizing logs in the cloud and using Grafana's analysis tools.
 
 | Parameter      | Type   | Required | Default    | Description |
 |----------------|--------|----------|------------|-------------|
-| `url`          | string | Yes      | —          | Loki endpoint URL (e.g., `https://logs-prod-012.grafana.net/loki/api/v1/push`) |
+| `url`          | string | Yes      | —          | Loki endpoint URL |
 | `username`     | string | Yes      | —          | Grafana Cloud user ID |
 | `token`        | string | Yes      | —          | Grafana Cloud API token |
 | `serviceName`  | string | No       | `json_logs` | Label `service_name` in Loki |
@@ -544,9 +544,9 @@ For production, use environment variables with `${VARIABLE}` syntax:
 Define environment variables in your system:
 
 ```bash
-export GRAFANA_CLOUD_LOKI_URL="https://logs-prod-012.grafana.net/loki/api/v1/push"
-export GRAFANA_CLOUD_LOKI_USERNAME="123456"
-export GRAFANA_CLOUD_LOKI_TOKEN="glc_ey..."
+export GRAFANA_CLOUD_LOKI_URL="grafana_cloud_loki_url"
+export GRAFANA_CLOUD_LOKI_USERNAME="username"
+export GRAFANA_CLOUD_LOKI_TOKEN="token"
 ```
 
 #### XML Configuration Example (Local Development)
@@ -555,7 +555,7 @@ For local environments you can include values directly (not recommended in produ
 
 ```xml
 <appender name="loki" class="LoggerAppenderLoki">
-  <param name="url" value="http://localhost:3100/loki/api/v1/push" />
+  <param name="url" value="grafana_cloud_loki_url" />
   <param name="username" value="local" />
   <param name="token" value="test-token" />
   <param name="serviceName" value="my-app-dev" />
@@ -666,10 +666,10 @@ The following tokens are available in `LoggerLayoutPattern`:
 
 | Token(s) | Description |
 |----------|-------------|
-| `%c`, `%lo`, `%logger` | Name of the logger that generated the event |
-| `%C`, `%class` | Name of the class that called the logger |
-| `%d`, `%date` | Timestamp of the event. Accepts `date()` format: `%date{Y-m-d H:i:s}` |
-| `%e`, `%env` | Environment variable (`$_ENV`) |
+| `%c`, `%lo`, `%logger` | Name of the logger that generated the event. Accepts precision `{n}` (segment count from right): `%logger{0}` or `%logger{1}` → last segment, `%logger{2}` → last two segments. |
+| `%C`, `%class` | Name of the class that called the logger. Accepts precision `{n}` (namespace segment count from right): `%class{0}` or `%class{1}` → simple class name, `%class{2}` → last two segments. |
+| `%d`, `%date` | Timestamp of the event. Accepts a date format in `{...}` (PHP `date()` syntax), e.g. `%date{Y-m-d H:i:s}`. Also supports aliases: `{ISO8601}`, `{ABSOLUTE}`, `{DATE}`. |
+| `%e`, `%env` | Environment variable (`$_ENV`). With `%env{KEY}` returns `$_ENV['KEY']` (or `empty` when not present/empty). |
 | `%F`, `%file` | Name of the source file |
 | `%l`, `%location` | Full location (class, method, file, line) |
 | `%L`, `%line` | Line number |
@@ -677,12 +677,16 @@ The following tokens are available in `LoggerLayoutPattern`:
 | `%M`, `%method` | Name of the method that called the logger |
 | `%n`, `%newline` | System line separator |
 | `%p`, `%le`, `%level` | Log level |
-| `%req`, `%request` | `$_REQUEST` variable |
+| `%req`, `%request` | Request data (`$_REQUEST`). With `%request{KEY}` returns `$_REQUEST['KEY']` (or `empty` when not present/empty). |
 | `%rid`, `%requestid` | `REQUEST_ID` from `$_ENV` |
-| `%s`, `%server` | `$_SERVER` variable |
-| `%ses`, `%session` | `$_SESSION` variable |
+| `%s`, `%server` | Server data (`$_SERVER`). With `%server{KEY}` returns `$_SERVER['KEY']` (or `empty` when not present/empty). |
+| `%ses`, `%session` | Session data (`$_SESSION`). With `%session{KEY}` returns `$_SESSION['KEY']` (or `empty` when not present/empty). |
 | `%sid`, `%sessionid` | Session ID |
 | `%t`, `%pid`, `%process` | Current process PID |
+
+Notes:
+- For converters without option support (for example `%level`, `%message`, `%line`), any `{...}` value is ignored.
+- `%class{n}` and `%logger{n}` use segment precision, not character-length truncation.
 
 #### Padding and Truncation
 
