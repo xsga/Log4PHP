@@ -31,6 +31,7 @@
     "style": "phpcs -p --colors --standard=PSR12 src",
     "style-fix": "phpcbf -p --standard=PSR12 src",
     "analyze-errors": "psalm --output-format=console --show-info=false --no-cache",
-    "analyze-info": "psalm --output-format=console --show-info=true --no-cache"
+    "analyze-info": "psalm --output-format=console --show-info=true --no-cache",
+    "analyze-security": "psalm --output-format=console --security-analysis --no-cache"
   }
 }
