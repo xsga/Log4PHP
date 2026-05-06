@@ -1,18 +1,10 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
 name: Psalm Security Scan
 
 on:
   push:
     branches: [ "master" ]
   pull_request:
-    # The branches below must be a subset of the branches above
     branches: [ "master" ]
-  schedule:
-    - cron: '20 19 * * 4'
 
 permissions:
   contents: read
@@ -24,6 +16,8 @@ jobs:
       contents: read
       security-events: write
       actions: read
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
       - name: Setup PHP
@@ -45,6 +39,6 @@ jobs:
         run: vendor/bin/psalm --taint-analysis --output-format=sarif --report=results.sarif
 
       - name: Upload Security Analysis results to GitHub
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: results.sarif
